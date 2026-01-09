@@ -1,54 +1,67 @@
-"use client"
+"use client";
 
-import { useRef, useEffect, useState, useCallback } from "react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent } from "@/components/ui/card"
-import { Trash2 } from "lucide-react"
-import type { Currency } from "@/types/tools"
-import { useTools } from "@/hooks/useTools"
+import { useRef, useEffect, useState, useCallback } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Trash2 } from "lucide-react";
+import type { Currency } from "@/types/tools";
+import { useTools } from "@/hooks/useTools";
 
-const CURRENCIES: Currency[] = ["PLN", "USD", "EUR"]
+const CURRENCIES: Currency[] = ["PLN", "USD", "EUR"];
 const CURRENCY_SYMBOLS: Record<Currency, string> = {
   PLN: "PLN",
   USD: "$",
   EUR: "€",
-}
+};
 
 type Props = {
-  onChange: (value: Number) => void
-}
+  onChange: (value: Number) => void;
+};
 
 export function ToolsSection({ onChange }: Props) {
-  const { tools, addTool, updateTool, removeTool, calculateToolsTotal, getToolsWithErrors } = useTools()
-  const [toolErrors, setToolErrors] = useState<Record<string, string>>({})
-  const nameInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
-  const [lastAddedId, setLastAddedId] = useState<string | null>(null)
+  const {
+    tools,
+    addTool,
+    updateTool,
+    removeTool,
+    calculateToolsTotal,
+    getToolsWithErrors,
+  } = useTools();
+  const [toolErrors, setToolErrors] = useState<Record<string, string>>({});
+  const nameInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null);
 
   useEffect(() => {
-    onChange(calculateToolsTotal().toFixed(2));
-  }, [calculateToolsTotal, tools])
+    onChange(Number(calculateToolsTotal().toFixed(2)));
+  }, [calculateToolsTotal, tools]);
 
   // Check for validation errors when tools change
   useEffect(() => {
-    const errors = getToolsWithErrors()
-    setToolErrors(errors)
-  }, [getToolsWithErrors])
+    const errors = getToolsWithErrors();
+    setToolErrors(errors);
+  }, [getToolsWithErrors]);
 
   // Autofocus the name input when a new tool is added
   useEffect(() => {
     if (lastAddedId && nameInputRefs.current[lastAddedId]) {
-      nameInputRefs.current[lastAddedId]?.focus()
-      setLastAddedId(null)
+      nameInputRefs.current[lastAddedId]?.focus();
+      setLastAddedId(null);
     }
-  }, [lastAddedId])
+  }, [lastAddedId]);
 
   const handleAddTool = useCallback(() => {
-    const newId = addTool()
-    setLastAddedId(newId)
-  }, [addTool])
+    const newId = addTool();
+    setLastAddedId(newId);
+  }, [addTool]);
 
   return (
     <div className="space-y-4">
@@ -57,13 +70,18 @@ export function ToolsSection({ onChange }: Props) {
           <div className="flex flex-col gap-2">
             {tools.map((tool) => (
               <div key={tool.id}>
-                <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,auto] items-center gap-2 text-sm">
+                <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] items-center gap-2 text-sm">
                   <div>
                     <Input
                       placeholder="Nazwa"
                       value={tool.name}
-                      onChange={(e) => updateTool(tool.id, { name: e.target.value })}
-                      ref={(el) => (nameInputRefs.current[tool.id] = el)}
+                      onChange={(e) =>
+                        updateTool(tool.id, { name: e.target.value })
+                      }
+                      ref={(el) => {
+                        nameInputRefs.current[tool.id] = el;
+                      }}
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                       data-1p-ignore
                     />
                   </div>
@@ -73,13 +91,17 @@ export function ToolsSection({ onChange }: Props) {
                       placeholder="0"
                       min="0"
                       value={tool.amount}
-                      onChange={(e) => updateTool(tool.id, { amount: e.target.value })}
+                      onChange={(e) =>
+                        updateTool(tool.id, { amount: e.target.value })
+                      }
                     />
                   </div>
                   <div className="w-full">
                     <Select
                       value={tool.currency}
-                      onValueChange={(value: Currency) => updateTool(tool.id, { currency: value })}
+                      onValueChange={(value: Currency) =>
+                        updateTool(tool.id, { currency: value })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -99,19 +121,37 @@ export function ToolsSection({ onChange }: Props) {
                       placeholder="1"
                       min="0"
                       value={tool.exchangeRate}
-                      onChange={(e) => updateTool(tool.id, { exchangeRate: e.target.value })}
+                      onChange={(e) =>
+                        updateTool(tool.id, { exchangeRate: e.target.value })
+                      }
                       disabled={tool.currency === "PLN"}
-                      className={toolErrors[tool.id] ? "border-destructive" : ""}
+                      className={
+                        toolErrors[tool.id] ? "border-destructive" : ""
+                      }
                     />
                   </div>
                   <div className="w-full whitespace-nowrap">
-                    = {((Number(tool.amount) || 0) * (Number(tool.exchangeRate) || 1)).toFixed(2)} PLN
+                    ={" "}
+                    {(
+                      (Number(tool.amount) || 0) *
+                      (Number(tool.exchangeRate) || 1)
+                    ).toFixed(2)}{" "}
+                    PLN
                   </div>
-                  <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => removeTool(tool.id)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10"
+                    onClick={() => removeTool(tool.id)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                {toolErrors[tool.id] && <p className="text-sm text-destructive mt-1">{toolErrors[tool.id]}</p>}
+                {toolErrors[tool.id] && (
+                  <p className="text-sm text-destructive mt-1">
+                    {toolErrors[tool.id]}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -129,9 +169,9 @@ export function ToolsSection({ onChange }: Props) {
               value={calculateToolsTotal().toFixed(2)}
               placeholder="0"
             />
-          </div>   
+          </div>
         </CardContent>
-      </Card> 
+      </Card>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,7 +30,12 @@ export default function Calculator() {
   const [showTooltip, setShowTooltip] = useState(false)
   const [showSumTooltip, setShowSumTooltip] = useState(false)
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const outputRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleInputChange = useCallback((field: string, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }))
@@ -136,7 +141,9 @@ export default function Calculator() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
-                {theme === "light" ? (
+                {!mounted ? (
+                  <Monitor className="h-[1.2rem] w-[1.2rem]" />
+                ) : theme === "light" ? (
                   <Sun className="h-[1.2rem] w-[1.2rem]" />
                 ) : theme === "dark" ? (
                   <Moon className="h-[1.2rem] w-[1.2rem]" />
@@ -259,7 +266,7 @@ export default function Calculator() {
               <div
                 ref={outputRef}
                 onClick={handleOutputClick}
-                className="break-all font-mono text-sm cursor-text flex-grow"
+                className="break-all font-mono text-sm cursor-text grow"
               >
                 {output}
               </div>
