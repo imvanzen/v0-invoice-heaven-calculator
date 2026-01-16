@@ -337,6 +337,9 @@ export default function Calculator() {
       >
         Leave feedback 📣
       </a>
+      <span className="text-sm text-muted-foreground/20">
+        Version {process.env.NEXT_PUBLIC_VERSION}
+      </span>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
