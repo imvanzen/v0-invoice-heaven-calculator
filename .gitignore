@@ -1,3 +1,11 @@
 node_modules
 .next
 .env
+
+# Cursor Rules
+# personal agent rules files
+.cursor/rules/senior-full-stack-developer_agent.mdc
+.cursor/rules/senior-quality-assurance_agent.mdc
+.cursor/rules/senior-project-manager_agent.mdc
+.cursor/rules/senior-designer_agent.mdc
+.cursor/rules/pr-workflow.mdc

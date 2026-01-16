@@ -1,23 +1,28 @@
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import type React from "react" // Import React
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import type React from "react"; // Import React
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
 
 export const metadata = {
-      generator: 'v0.app'
-    };
+  generator: "v0.app",
+};
