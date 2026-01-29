@@ -5,18 +5,15 @@ import {
   isMonthBiMonthlySettlementMonth,
 } from "@/utils/periods";
 import { getBenefitRules, getCurrentBenefitRules } from "@/types/benefit-rules";
-import { getMasterLearnerAnnualLimit } from "@/utils/limits";
-import type { EmploymentDate } from "@/types/calculation";
 
 /**
  * Get max values from benefit rules for validation
- * Uses current rules as fallback for dynamic validation
+ * ML and MC use bi-monthly limits; Integrations use quarterly.
  */
 function getMaxValuesFromRules(month?: string) {
   let rules;
   if (month) {
     const { year, month: monthNum } = parseMonthString(month);
-    // Use UTC date to avoid timezone issues
     const date = new Date(Date.UTC(year, monthNum - 1, 1));
     rules = getBenefitRules(date);
   } else {
@@ -24,7 +21,7 @@ function getMaxValuesFromRules(month?: string) {
   }
 
   return {
-    masterLearner: rules.limits.masterLearner.annualLimit,
+    masterLearner: rules.limits.masterLearner.biMonthlyLimit,
     masterCare: rules.limits.masterCare.biMonthlyLimit,
     integrations: rules.limits.integrations.quarterlyLimit,
   };
@@ -55,10 +52,14 @@ const baseCalculationFormSchema = z.object({
       return year >= 2020 && year <= currentYear;
     }, "Year must be between 2020 and current year"),
 
-  // Master Learner (per-entry max will be validated in superRefine to account for employment date)
+  // Master Learner (500 PLN per bi-monthly period; same method as Master Care)
   masterLearner: z
     .number({ error: "Master Learner must be a number" })
-    .min(0, "Master Learner cannot be negative"),
+    .min(0, "Master Learner cannot be negative")
+    .max(
+      defaultMaxValues.masterLearner,
+      `Master Learner cannot exceed ${defaultMaxValues.masterLearner} PLN per period (every 2 months)`,
+    ),
 
   // Master Care (per-entry max uses benefit rules)
   masterCare: z
@@ -68,12 +69,6 @@ const baseCalculationFormSchema = z.object({
       defaultMaxValues.masterCare,
       `Master Care cannot exceed ${defaultMaxValues.masterCare} PLN per entry`,
     ),
-
-  // Budget for Commutes (no specific limit mentioned)
-  budzet: z
-    .number({ error: "Budget must be a number" })
-    .min(0, "Budget cannot be negative")
-    .max(99999, "Budget exceeds reasonable limit"),
 
   // Integrations (per-entry max uses benefit rules)
   integracje: z
@@ -115,15 +110,12 @@ const baseCreateCalculationSchema = baseCalculationFormSchema.omit({
 });
 
 /**
- * Create a validation schema with employment date context
- * This allows Master Learner validation to use the correct limit based on employment date
+ * Create validation schema (period-based restrictions for ML/MC; ML no longer depends on employment date)
  */
-export function createCalculationFormSchema(
-  employmentDate: EmploymentDate | null,
-) {
+export function createCalculationFormSchema(_employmentDate?: unknown) {
   return baseCalculationFormSchema.superRefine((data, ctx) => {
     const { month, masterCare, masterLearner } = data;
-    const { month: monthNum, year } = parseMonthString(month);
+    const { month: monthNum } = parseMonthString(month);
 
     if (masterCare > 0 && !isMonthBiMonthlySettlementMonth(monthNum)) {
       ctx.addIssue({
@@ -138,31 +130,6 @@ export function createCalculationFormSchema(
         code: z.ZodIssueCode.custom,
         path: ["masterLearner"],
         message: SETTLEMENT_MONTHS_MESSAGE,
-      });
-    }
-
-    // Master Learner: max 500 PLN per bi-monthly period; annual cap (3000 or 1500) from employment
-    const date = new Date(Date.UTC(year, monthNum - 1, 1));
-    const benefitRules = getBenefitRules(date);
-    const mlBiMonthlyCap = benefitRules.limits.masterLearner.biMonthlyLimit;
-    const mlAnnualLimit = getMasterLearnerAnnualLimit(
-      employmentDate,
-      month,
-      benefitRules,
-    );
-
-    if (masterLearner > mlBiMonthlyCap) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["masterLearner"],
-        message: `Master Learner cannot exceed ${mlBiMonthlyCap} PLN per period (every 2 months)`,
-      });
-    }
-    if (masterLearner > mlAnnualLimit) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["masterLearner"],
-        message: `Master Learner cannot exceed annual limit of ${mlAnnualLimit} PLN`,
       });
     }
   });

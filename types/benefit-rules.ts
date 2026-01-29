@@ -12,8 +12,7 @@ export interface BenefitRules {
   description: string;
   limits: {
     masterLearner: {
-      annualLimit: number;
-      /** Max PLN per bi-monthly settlement period (500 → 3000/year) */
+      /** Fixed 500 PLN per bi-monthly period (no employment-date dependency) */
       biMonthlyLimit: number;
       description: string;
     };
@@ -42,10 +41,9 @@ export const BENEFIT_RULES_REGISTRY: BenefitRules[] = [
     description: "Initial benefit rules as per 2026 company policy",
     limits: {
       masterLearner: {
-        annualLimit: 3000,
         biMonthlyLimit: 500,
         description:
-          "500 PLN per bi-monthly period, 3000 PLN/year (or 1500 if <6 months worked)",
+          "500 PLN per bi-monthly period (same method as Master Care; no employment-date dependency)",
       },
       masterCare: {
         biMonthlyLimit: 750,

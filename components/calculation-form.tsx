@@ -7,7 +7,6 @@ import { ToolsSection } from "@/components/tools-section";
 import { MonthYearSelect } from "@/components/month-year-select";
 import { MasterLearnerField } from "@/components/form-fields/master-learner-field";
 import { MasterCareField } from "@/components/form-fields/master-care-field";
-import { BudgetField } from "@/components/form-fields/budget-field";
 import { IntegrationField } from "@/components/form-fields/integracje-field";
 import { OtherField } from "@/components/form-fields/other-field";
 import { CalculationResultDialog } from "@/components/calculation-result-dialog";
@@ -147,10 +146,7 @@ export function CalculationForm({
             />
           </div>
 
-          {/* Budget */}
-          <BudgetField />
-
-          {/* Integrations */}
+          {/* Integrations (team-building) */}
           <IntegrationField />
 
           {/* Other */}

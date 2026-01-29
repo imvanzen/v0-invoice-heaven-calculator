@@ -176,7 +176,6 @@ export function AppStateProvider({ children }: AppStateProviderProps) {
         masterLearner: data.masterLearner,
         masterCare: data.masterCare,
         tools: data.tools,
-        budzet: data.budzet,
         integracje: data.integracje,
         inne: data.inne,
         toolsTotal: data.toolsTotal,

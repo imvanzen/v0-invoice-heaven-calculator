@@ -1,7 +1,9 @@
 # Invoice Heaven Calculator - User Stories
 
-**Last Updated:** January 16, 2026  
+**Last Updated:** January 29, 2026  
 **Status:** ✅ Production - Post-Refactor Architecture
+
+**Feedback update (Jan 2026):** Master Learner simplified to 500 PLN every two months (same method as Master Care; no employment-date dependency). Budget category "Budżet na dojazdy i noclegi" removed; accommodation/travel covered under Integracje (team-building). Terminology: "Integracje" = team-building (company/employee events), not system integrations. InvoiceHeaven string format updated: no "budżet na dojazdy i noclegi" segment; REIM.RAZEM = Tools + Integracje + Inne.
 
 ## Project Overview
 
@@ -15,36 +17,32 @@
 
 ## 📋 Business Rules
 
-### Master Learner (ML) Annual Limit - Employment Date Dependent
+### Master Learner (ML) – Simplified (Same Method as Master Care)
 
-**Source:** Benefits 2026 Program Documentation
+**Source:** Benefits 2026 Program Documentation; updated per product feedback (Jan 2026).
 
-**Rule:** The Master Learner annual budget limit depends on the employee's employment start date:
+**Rule:** Master Learner is calculated **exactly the same way as Master Care**: a **fixed amount per bi-monthly period**, with **no employment-date dependency** and **no annual cap**.
 
-- **If joined between January 1st and June 30th:** Annual limit = **3,000 PLN**
-- **If joined between July 1st and December 31st:** Annual limit = **1,500 PLN**
+- **Amount:** **500 PLN every two months** (per bi-monthly period).
+- **Settlement period:** Bi-monthly (Jan–Feb, Mar–Apr, May–Jun, Jul–Aug, Sep–Oct, Nov–Dec). Values can only be entered in calculations for months within the current bi-monthly settlement period (same rules as Master Care).
+- **Removed:** Rules tied to “when someone joins” and “total annual budget”—these are no longer used.
 
-**Rationale:** Employees joining in the second half of the year receive a pro-rated annual budget.
+**Rationale:** Simplification removes edge cases and alignment problems; “500 PLN every two months” is the single rule.
 
-**Settlement Period:** Bi-monthly (calculations can only be submitted in settlement months: February, April, June, August, October, December. Settlement starts from February: payment for January-February period will be in March, for March-April in May, etc. Total annual usage cannot exceed the limit based on employment date)
-
-**Coverage:** English lessons, conferences, training, courses, certifications, tuition fees, books, coaching, and related logistics (transport, accommodation)
+**Coverage:** English lessons, conferences, training, courses, certifications, tuition fees, books, coaching, and related logistics (transport, accommodation).
 
 **Implementation Requirements:**
 
-- Employment start date must be captured (month and year)
-- System must calculate limit based on employment month:
-  - Months 1-6 (Jan-Jun) → 3,000 PLN limit
-  - Months 7-12 (Jul-Dec) → 1,500 PLN limit
-- If employment date is not set, system defaults to 3,000 PLN with a warning to set employment date for accurate limits
-- Limit applies to the calendar year (January-December)
-- Accumulated usage across all calculations in the year must not exceed the limit
+- **No employment start date** is required for ML limit calculation.
+- System applies a **per-period limit**: 500 PLN per bi-monthly period (same period definition as Master Care).
+- Accumulated ML in the current bi-monthly period must not exceed 500 PLN.
+- Period-based input: ML can only be entered in calculations for months within the current bi-monthly settlement period (aligned with Master Care behaviour).
 
-**Note:** This rule is similar to Master Care in settlement frequency (bi-monthly), but distinct in limit calculation:
+**Note:** ML and MC now share the same calculation method (fixed per bi-monthly period, no employment dependency):
 
-- **Master Care:** Fixed 750 PLN per bi-monthly period (not dependent on employment date)
-- **Master Learner:** Annual limit of 3,000 PLN (or 1,500 PLN for new employees), settled bi-monthly
-- **Integrations:** Fixed 1,500 PLN per quarter (not dependent on employment date)
+- **Master Care:** Fixed 750 PLN per bi-monthly period.
+- **Master Learner:** Fixed 500 PLN per bi-monthly period.
+- **Integracje (team-building):** Fixed 1,500 PLN per quarter (see terminology note below).
 
 ---
 
@@ -167,10 +165,10 @@
 
 **Acceptance Criteria:**
 
-- Given I have entered values in any combination of Master Learner, Master Care, Tools, Budget, Integrations, and Other fields
+- Given I have entered values in any combination of Master Learner, Master Care, Tools, Integrations, and Other fields
 - When I click the "Calculate" button
 - Then the system displays the total sum in PLN with 2 decimal places
-- And the total sum equals: ML + MC + Tools (in PLN) + Budget + Integrations + Other
+- And the total sum equals: ML + MC + Tools (in PLN) + Integrations + Other
 - And the calculation uses financial math to avoid floating-point precision errors
 
 **Edge Cases:**
@@ -210,9 +208,9 @@
 
 **Acceptance Criteria:**
 
-- Given I have entered values in Tools, Budget, Integrations, and/or Other fields
+- Given I have entered values in Tools, Integrations, and/or Other fields
 - When I click "Calculate"
-- Then REIM.RAZEM equals: Tools (in PLN) + Budget + Integrations + Other
+- Then REIM.RAZEM equals: Tools (in PLN) + Integrations + Other
 - And REIM.RAZEM is displayed with exactly 2 decimal places in the output string
 - And REIM.RAZEM is calculated even when some fields are empty (treated as 0)
 
@@ -235,7 +233,7 @@
 **References:**
 
 - `app/page.tsx` (lines 79-86, 88)
-- Business requirement: REIM.RAZEM = narzędzia + budżet + integracje + inne
+- Business requirement: REIM.RAZEM = narzędzia + integracje + inne (Budget category removed per feedback; accommodation/travel covered under Integracje / team-building)
 
 **Change Note:** New
 
@@ -253,7 +251,7 @@
 
 - Given I have entered values (or left them empty) in all fields
 - When I click "Calculate"
-- Then the system generates a string in the exact format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na dojazdy i noclegi;{budzet};integracje;{integracje};inne;{inne}`
+- Then the system generates a string in the exact format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};integracje;{integracje};inne;{inne}`
 - And empty fields are represented as "0"
 - And REIM.RAZEM and narzędzia always show 2 decimal places (e.g., "0.00")
 - And other numeric values show without decimal places if they are whole numbers
@@ -261,7 +259,7 @@
 
 **Edge Cases:**
 
-- All zeros → `ML;0;MC;0;REIM.RAZEM;0.00;narzędzia;0.00;budżet na dojazdy i noclegi;0;integracje;0;inne;0`
+- All zeros → `ML;0;MC;0;REIM.RAZEM;0.00;narzędzia;0.00;integracje;0;inne;0`
 - Decimal values → Properly formatted (e.g., "150.50", "75.25")
 - Large values → No formatting issues
 
@@ -294,7 +292,7 @@
 **Title:** Input Master Learner Amount  
 **Story Statement:** As an employee, I want to enter my Master Learner benefit amount, so that it's included in my reimbursement calculation.
 
-**Business Value:** Master Learner is a core benefit category with employment-date-dependent annual limit (3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec) that must be tracked separately in the InvoiceHeaven format. See [Business Rules](#-business-rules) section for detailed specification.
+**Business Value:** Master Learner is a core benefit category with a **fixed 500 PLN per bi-monthly period** (same calculation method as Master Care; no employment-date dependency). It must be tracked separately in the InvoiceHeaven format. See [Business Rules](#-business-rules) section for detailed specification.
 
 **Acceptance Criteria:**
 
@@ -304,38 +302,39 @@
 - And the field accepts decimal numbers
 - And the field shows a placeholder "0"
 - And I cannot enter negative values (validation error shown)
-- And I cannot enter values exceeding 6,000 PLN (validation error shown)
+- And I cannot enter values exceeding 500 PLN per entry (validation error shown)
+- And I can only enter Master Learner values in calculations for months within the current bi-monthly settlement period (same rules as Master Care: Feb, Apr, Jun, Aug, Oct, Dec for the respective Jan–Feb, Mar–Apr, etc. periods)
 - And validation errors are displayed immediately below the field
 
 **Edge Cases:**
 
 - Empty field → Treated as 0 in calculation
-- Value exactly 3000 → Accepted
-- Value 6001 → Rejected with error message
+- Value exactly 500 → Accepted (if within correct bi-monthly period)
+- Value 501 → Rejected with error message
 - Negative value → Rejected with error message
 - Non-numeric input → Browser prevents (type="number")
+- Entering ML in a month outside the bi-monthly settlement window → Rejected with period error (same behaviour as Master Care)
 
-**Dependencies:** US-027 (for accumulated limit validation)
+**Dependencies:** US-027 (for accumulated limit validation), US-033 (period-based input validation)
 
 **Risks:** Missing validation could allow invalid submissions
 
 **Sub-Tasks:**
 
 - Create Master Learner input field
-- Implement validation logic (0-3000 range, no negatives)
-- Integrate with accumulated limit validation (US-027)
+- Implement validation logic (0–500 per entry, no negatives)
+- Implement period-based validation (same as Master Care)
+- Integrate with accumulated limit validation (US-027) for bi-monthly period
 - Display validation error messages
 - Add validation tests
 
 **References:**
 
 - `app/page.tsx` (lines 173-183, 50-54)
-- Business rule: Master Learner max 6,000 PLN per entry, annual limit depends on employment date (3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec)
+- Business rule: Master Learner 500 PLN per bi-monthly period (no employment date; see [Business Rules](#-business-rules))
 - Test: `tests/calculator.spec.ts` (lines 198-209)
-- See [Business Rules](#-business-rules) section for authoritative ML limit specification
-- MasterLearner.pdf: 3,000 PLN annually (or 1,500 if joined July-Dec)
 
-**Change Note:** Updated - Added reference to US-027 for accumulated limit validation
+**Change Note:** Updated per feedback – ML simplified to 500 PLN every two months, same method as Master Care; employment-date-dependent annual limit removed.
 
 ---
 
@@ -405,57 +404,27 @@
 
 ---
 
-#### US-006: Input Budget for Commutes and Accommodation
+#### US-006: Input Budget for Commutes and Accommodation — **REMOVED**
 
 **Story ID:** US-006  
 **Title:** Input Budget for Commutes and Accommodation  
-**Story Statement:** As an employee, I want to enter my budget amount for commutes and accommodation, so that it's included in the REIM.RAZEM calculation.
+**Status:** **Removed** (per product feedback, Jan 2026).
 
-**Business Value:** This category represents travel and accommodation expenses that are part of the departmental budget and project integrations.
+**Rationale:** "Budżet na dojazdy i noclegi" (accommodation and travel) has been removed as a separate category. These costs are covered under **Integracje (team-building)**; the formula was simplified and the separate budget field is no longer part of the InvoiceHeaven string or REIM.RAZEM. See [Business Rules](#-business-rules) and updated string format in US-002/US-003.
 
-**Acceptance Criteria:**
-
-- Given I am on the calculator page
-- When I see the "Budżet na dojazdy i noclegi" input field
-- Then I can enter a numeric value
-- And the field accepts decimal numbers
-- And the field shows a placeholder "0"
-- And I cannot enter negative values (validation error shown)
-- And empty field is treated as 0 in calculation
-
-**Edge Cases:**
-
-- Empty field → Treated as 0
-- Decimal values → Accepted (e.g., 150.50)
-- Very large values → Accepted (no upper limit specified)
-
-**Dependencies:** US-002 (REIM.RAZEM calculation)
-
-**Risks:** None significant
-
-**Sub-Tasks:**
-
-- Create budget input field
-- Implement validation (no negatives)
-- Integrate into REIM.RAZEM calculation
-- Add tests
-
-**References:**
-
-- `app/page.tsx` (lines 203-214)
-- Business context: Departmental budget for travel/accommodation
-
-**Change Note:** New
+**Change Note:** Category removed; do not implement or display this field. Existing references in code/docs to "Budget" in the reimbursement sense should be removed or migrated to the new formula (Tools + Integracje + Inne only).
 
 ---
 
-#### US-007: Input Integrations Amount
+#### US-007: Input Integrations (Team-Building) Amount
 
 **Story ID:** US-007  
-**Title:** Input Integrations Amount  
-**Story Statement:** As an employee, I want to enter my individual travel expenses (accommodation and transport) for integrations, so that they're included in the REIM.RAZEM calculation and InvoiceHeaven format.
+**Title:** Input Integrations (Team-Building) Amount  
+**Story Statement:** As an employee, I want to enter my individual travel expenses (accommodation and transport) for team-building events, so that they're included in the REIM.RAZEM calculation and InvoiceHeaven format.
 
-**Business Value:** Integrations is a benefit category with a fixed amount of 1,500 PLN quarterly per person (no employment date dependency) for project team integrations and office visits. Individual employees can only settle their own travel expenses (accommodation and transport) through the reimbursement system. Group activities (restaurants, attractions) are handled separately by organizers using company cards. Integrations are settled quarterly, so values can only be entered in calculations for months within the correct quarter.
+**Terminology:** In this context **"Integracje"** means **team-building** (company/employee events, office visits, project get-togethers). It does _not_ mean system/technical integrations. Use "team-building" in UI or docs where it avoids confusion. The InvoiceHeaven label remains "integracje".
+
+**Business Value:** Integracje (team-building) is a benefit category with a fixed amount of 1,500 PLN quarterly per person (no employment date dependency) for project team integrations and office visits. Individual employees can only settle their own travel expenses (accommodation and transport) through the reimbursement system. Group activities (restaurants, attractions) are handled separately by organizers using company cards. Integrations are settled quarterly, so values can only be entered in calculations for months within the correct quarter.
 
 **Acceptance Criteria:**
 
@@ -1178,7 +1147,7 @@
 - And I cannot select a month that already has a saved calculation (validation error shown)
 - And when I click "Save Calculation"
 - Then the system saves the calculation with:
-  - All form field values (ML, MC, Tools, Budget, Integrations, Other)
+  - All form field values (ML, MC, Tools, Integrations, Other)
 - And the calculation is tagged with selected month and year (e.g., "2026-01")
 - And the calculation is assigned a unique ID
 - And the calculation includes a timestamp
@@ -1240,26 +1209,24 @@
 - Given I am on the home page
 - When the page loads
 - Then above the calculation list, I see a summary section displaying current period usage and limits:
-  - **Master Learner:** "Used: {amount} / Limit: {limit} PLN" (e.g., "Used: 1,500 / Limit: 3,000 PLN" or "Used: 750 / Limit: 1,500 PLN" if joined Jul-Dec)
-  - **Master Care:** "Used: {amount} / Limit: {limit} PLN" (e.g., "Used: 500 / Limit: 750 PLN" for current bi-monthly period)
-  - **Integrations:** "Used: {amount} / Limit: {limit} PLN" (e.g., "Used: 1,200 / Limit: 1,500 PLN" for current quarter)
+  - **Master Learner:** "Used: {amount} / Limit: 500 PLN" (current bi-monthly period; no employment-date dependency)
+  - **Master Care:** "Used: {amount} / Limit: 750 PLN" (current bi-monthly period)
+  - **Integrations (team-building):** "Used: {amount} / Limit: 1,500 PLN" (current quarter)
 - And the usage is calculated from all calculations in the current period:
-  - ML: Current calendar year (January-December)
+  - ML: Current bi-monthly period (Jan-Feb, Mar-Apr, etc.)
   - MC: Current bi-monthly period (Jan-Feb, Mar-Apr, etc.)
   - Integrations: Current quarter (Q1, Q2, Q3, Q4)
-- And the limits are based on my employment start date (if set):
-  - ML limit: 3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec
-  - MC limit: Always 750 PLN (not dependent on employment date)
-  - Integrations limit: Fixed 1,500 PLN per quarter (not dependent on employment date)
-- And if employment date is not set, ML shows default limit of 3,000 PLN with a warning to set employment date
+- And the limits are fixed (no employment-date dependency for ML):
+  - ML limit: 500 PLN per bi-monthly period
+  - MC limit: 750 PLN per bi-monthly period
+  - Integrations limit: 1,500 PLN per quarter
 - And I see a list of all saved calculations displayed in a table format below the summary
 - And each calculation row displays the following columns:
   - **Month:** Month and year (e.g., "January 2026")
   - **Master Learner (ML):** Value in PLN
   - **Master Care (MC):** Value in PLN
   - **Tools:** Total tools value in PLN
-  - **Budget:** Budget value in PLN
-  - **Integrations:** Integrations value in PLN
+  - **Integrations:** Integrations (team-building) value in PLN
   - **Other:** Other expenses value in PLN
   - **Total:** Total sum in PLN (formatted with 2 decimal places)
   - **Status:** Current status (Saved, Submitted, Declined, Approved) with visual indicator
@@ -1323,11 +1290,10 @@
   - Master Learner value
   - Master Care value
   - All tools entries (names, amounts, currencies, exchange rates)
-  - Budget value
   - Integrations value
   - Other value
   - Month selector shows the calculation's month (disabled/read-only)
-- And I can modify any field (ML, MC, Tools, Budget, Integrations, Other)
+- And I can modify any field (ML, MC, Tools, Integrations, Other)
 - And I can add, remove, or modify tools entries
 - And the calculator state is persisted in localStorage as I make changes
 - And when I click "Save" after editing
@@ -1396,7 +1362,6 @@
   - Master Learner value
   - Master Care value
   - All tools entries (names, amounts, currencies, exchange rates)
-  - Budget value
   - Integrations value
   - Other value
 - And the month selector shows current month (or next available month)
@@ -1453,21 +1418,18 @@
 - Given I have saved calculations
 - When the system calculates accumulated usage
 - Then for Master Learner:
-  - Sum all ML values from current calendar year (January-December)
-  - Show: Used / Annual Limit (e.g., "1,500 / 3,000 PLN")
-  - Show remaining: Annual Limit - Used
+  - Sum all ML values from **current bi-monthly period** (Jan-Feb, Mar-Apr, May-Jun, etc.)
+  - Show: Used / Period Limit (e.g., "300 / 500 PLN")
+  - Show remaining: Period Limit - Used (limit = 500 PLN per bi-monthly period; no employment-date dependency)
 - And for Master Care:
   - Sum all MC values from current bi-monthly period (Jan-Feb, Mar-Apr, May-Jun, etc.)
   - Show: Used / Period Limit (e.g., "500 / 750 PLN")
   - Show remaining: Period Limit - Used
-- And for Integrations:
+- And for Integrations (team-building):
   - Sum all Integrations values from current quarter (Q1, Q2, Q3, Q4)
   - Note: Only individual travel expenses (accommodation + transport) are tracked; group activities handled by organizers
   - Show: Used / Quarterly Limit (e.g., "1,200 / 1,500 PLN")
   - Show remaining: Quarterly Limit - Used
-- And for Budget (Koszty bieżące):
-  - Sum all Budget values from current month
-  - Show: Used / Monthly Limit (if applicable)
 - And the accumulated usage is displayed in the calculator or history view
 - And the calculation updates automatically when new calculations are saved
 
@@ -1476,12 +1438,11 @@
 - No calculations in period → Shows "0 / Limit PLN"
 - Usage exceeds limit → Shows negative remaining (with warning)
 - Calculations from different periods → Only current period counted
-- Year transition → Master Learner resets, new year starts
-- Period transition → Master Care resets every 2 months, Integrations every quarter
+- Period transition → Master Learner and Master Care reset every 2 months; Integrations every quarter
 
-**Dependencies:** US-022, US-023, US-038 (employment date for ML only)
+**Dependencies:** US-022, US-023
 
-**Risks:** Incorrect period calculation could lead to wrong limits, employment date not set may cause incorrect ML limit (Integrations limit is fixed and not affected)
+**Risks:** Incorrect period calculation could lead to wrong limits
 
 **Sub-Tasks:**
 
@@ -1496,14 +1457,12 @@
 **References:**
 
 - Business rules:
-  - MasterLearner: See [Business Rules](#-business-rules) section - 3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec, bi-monthly settlement period
-  - MasterCare: 750 PLN every 2 months, bi-monthly period starting January
-  - Integrations: Fixed 1,500 PLN quarterly (not dependent on employment date, individual travel expenses only - accommodation and transport)
-  - Koszty bieżące: Monthly period
+  - Master Learner: See [Business Rules](#-business-rules) – 500 PLN per bi-monthly period (no employment-date dependency)
+  - Master Care: 750 PLN every 2 months, bi-monthly period starting January
+  - Integrations (team-building): Fixed 1,500 PLN quarterly (individual travel expenses only)
 - Integracje projektowe + przyjazdy do biura.pdf: Individual employees settle travel expenses individually; organizers handle group activities
-- Employment date required for accurate ML limit calculation only (Integrations limit is fixed)
 
-**Change Note:** New
+**Change Note:** Updated per feedback – ML simplified to bi-monthly 500 PLN; Budget category removed from accumulated usage.
 
 ---
 
@@ -1520,8 +1479,8 @@
 - Given I am creating a new calculation
 - When I enter values for Master Learner, Master Care, or Integrations
 - Then the system checks my accumulated usage for the current period
-- And if ML + accumulated ML > annual limit (3,000 PLN):
-  - Show validation error: "Master Learner: You have used {accumulated} PLN. This entry ({new}) would exceed the annual limit of 3,000 PLN. Remaining: {remaining} PLN"
+- And if ML + accumulated ML > bi-monthly limit (500 PLN):
+  - Show validation error: "Master Learner: You have used {accumulated} PLN in this period. This entry ({new}) would exceed the period limit of 500 PLN. Remaining: {remaining} PLN"
   - Block calculation save
 - And if MC + accumulated MC > bi-monthly limit (750 PLN):
   - Show validation error: "Master Care: You have used {accumulated} PLN in this period. This entry ({new}) would exceed the period limit of 750 PLN. Remaining: {remaining} PLN"
@@ -1536,20 +1495,20 @@
 **Edge Cases:**
 
 - First calculation of period → No accumulated usage, only per-entry validation
-- Calculation exactly at limit → Accepted (e.g., 3,000 PLN total for ML)
+- Calculation exactly at limit → Accepted (e.g., 500 PLN total for ML in current bi-monthly period)
 - Calculation exceeding limit by small amount → Rejected with clear error
 - Editing calculation → Validation subtracts original value, adds new value
 - Multiple calculations in same session → Each validated against current accumulated total
 - Period transition during session → Validation updates to new period limits
 
-**Dependencies:** US-004, US-005, US-007, US-026, US-038 (employment date)
+**Dependencies:** US-004, US-005, US-007, US-026
 
-**Risks:** Complex validation logic, potential for bugs in period calculations, incorrect limits if employment date not set
+**Risks:** Complex validation logic, potential for bugs in period calculations
 
 **Sub-Tasks:**
 
 - Integrate accumulated usage into validation logic
-- Update Master Learner validation (US-004) to check annual limit
+- Update Master Learner validation (US-004) to check bi-monthly limit (500 PLN)
 - Update Master Care validation (US-005) to check bi-monthly limit
 - Add Integrations validation (US-007) to check quarterly limit
 - Display remaining budget indicators
@@ -1560,14 +1519,10 @@
 
 **References:**
 
-- Business rules from PDFs:
-  - MasterLearner: See [Business Rules](#-business-rules) section - 3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec
-  - MasterCare.pdf: 750 PLN every 2 months
-  - Integracje projektowe + przyjazdy do biura.pdf: 1,500 PLN quarterly for individual travel expenses (accommodation and transport only)
-- Employment date (US-038) required for accurate ML limit calculation
+- Business rules: Master Learner 500 PLN per bi-monthly period (see [Business Rules](#-business-rules)); Master Care 750 PLN every 2 months; Integracje 1,500 PLN quarterly (individual travel expenses only)
 - Existing validation: US-004, US-005, US-007
 
-**Change Note:** New
+**Change Note:** Updated per feedback – ML validation changed to bi-monthly 500 PLN limit; no employment-date dependency.
 
 ---
 
@@ -1584,9 +1539,9 @@
 - Given I am on the calculator page
 - When the page loads or I enter values
 - Then I see next to each benefit field:
-  - Master Learner: "Remaining: X / {limit} PLN" (annual, limit based on employment date: 3,000 if joined Jan-Jun, 1,500 if joined Jul-Dec)
+  - Master Learner: "Remaining: X / 500 PLN" (current bi-monthly period; no employment-date dependency)
   - Master Care: "Remaining: X / 750 PLN" (current bi-monthly period)
-  - Integrations: "Remaining: X / 1,500 PLN (travel expenses only)" (current quarter)
+  - Integrations (team-building): "Remaining: X / 1,500 PLN (travel expenses only)" (current quarter)
 - And the remaining amount updates in real-time as I type
 - And if remaining is low (< 10% of limit), show warning color (e.g., orange)
 - And if remaining is 0 or negative, show error color (e.g., red)
@@ -1600,9 +1555,9 @@
 - Period ending soon → Still shows current period limit
 - Multiple periods in history → Only current period shown
 
-**Dependencies:** US-026, US-027, US-038 (employment date)
+**Dependencies:** US-026, US-027
 
-**Risks:** UI clutter if too much information displayed, incorrect limits if employment date not set
+**Risks:** UI clutter if too much information displayed
 
 **Sub-Tasks:**
 
@@ -1618,7 +1573,7 @@
 
 - UI pattern: Inline validation with helpful hints
 
-**Change Note:** New
+**Change Note:** Updated per feedback – ML remaining shows 500 PLN bi-monthly limit; no employment-date dependency.
 
 ---
 
@@ -1866,13 +1821,13 @@
 **Title:** Validate Period-Based Input Restrictions  
 **Story Statement:** As an employee, I want the system to prevent me from entering benefit values in calculations for months outside their settlement periods, so that I don't create invalid reimbursement requests.
 
-**Business Value:** Ensures compliance with benefit settlement periods. Master Care is settled bi-monthly and Integrations are settled quarterly, so values can only be entered in calculations for months within the correct period. This prevents errors and ensures accurate period-based limit tracking.
+**Business Value:** Ensures compliance with benefit settlement periods. Master Learner and Master Care are settled bi-monthly (same settlement months: Feb, Apr, Jun, Aug, Oct, Dec); Integrations are settled quarterly. Values can only be entered in calculations for months within the correct period. This prevents errors and ensures accurate period-based limit tracking.
 
 **Acceptance Criteria:**
 
 - Given I am creating or editing a calculation with a specific month/year
-- When I try to enter Master Care value
-- Then the system checks if the calculation's month is the settlement month for the current bi-monthly period:
+- When I try to enter Master Learner or Master Care value
+- Then the system checks if the calculation's month is the settlement month for the current bi-monthly period (ML and MC share the same rule):
   - Jan-Feb period: Only February calculations can have MC values (settlement month)
   - Mar-Apr period: Only April calculations can have MC values (settlement month)
   - May-Jun period: Only June calculations can have MC values (settlement month)
@@ -1880,7 +1835,7 @@
   - Sep-Oct period: Only October calculations can have MC values (settlement month)
   - Nov-Dec period: Only December calculations can have MC values (settlement month)
 - And if the calculation month is not the settlement month:
-  - MC field is disabled or shows validation error
+  - ML and MC fields are disabled or show validation error
   - Error message clearly indicates the settlement month for the current period and why the month is invalid
 - And when I try to enter Integrations value
 - Then the system checks if the calculation's month is within the current quarterly period:
@@ -1908,7 +1863,7 @@
 - Multiple calculations in same session → Each validated independently based on its month
 - Importing calculations from file → Period validation applied during import validation
 
-**Dependencies:** US-022 (calculation month/year), US-005 (Master Care input), US-007 (Integrations input)
+**Dependencies:** US-022 (calculation month/year), US-004 (Master Learner input), US-005 (Master Care input), US-007 (Integrations input)
 
 **Risks:**
 
@@ -1924,7 +1879,7 @@
   - `getCurrentQuarter()` - Returns current quarter (Q1, Q2, Q3, Q4)
   - `isMonthBiMonthlySettlementMonth(month, period)` - Checks if month is the settlement month for bi-monthly period
   - `isMonthInQuarter(month, quarter)` - Checks if month is in quarter
-- Integrate period validation into MC field (US-005)
+- Integrate period validation into ML field (US-004) and MC field (US-005) — same bi-monthly settlement rule
 - Integrate period validation into Integrations field (US-007)
 - Add validation error messages with period information
 - Add helper text explaining settlement periods
@@ -1937,9 +1892,10 @@
 - Business rules:
   - MasterCare.pdf: 750 PLN every 2 months, settled bi-monthly (Jan-Feb, Mar-Apr, etc.)
   - Integracje projektowe + przyjazdy do biura.pdf: 1,500 PLN quarterly, settled quarterly (Q1-Q4)
-- User Stories: US-005, US-007, US-022
+- User Stories: US-004, US-005, US-007, US-022
+- Business rules: ML and MC both bi-monthly (500 PLN and 750 PLN per period respectively); see [Business Rules](#-business-rules)
 
-**Change Note:** New
+**Change Note:** Updated per feedback – ML added to period-based validation (same settlement months as MC).
 
 ---
 
@@ -1954,7 +1910,7 @@
 **Acceptance Criteria:**
 
 - Given I am on the calculator page (/create)
-- When I enter values in any field (ML, MC, Tools, Budget, Integrations, Other)
+- When I enter values in any field (ML, MC, Tools, Integrations, Other)
 - Then the calculator state is automatically saved to localStorage after each change
 - And the state includes:
   - All form field values
@@ -2166,13 +2122,9 @@
 
 **Story ID:** US-038  
 **Title:** Enter Employment Start Date  
-**Story Statement:** As an employee, I want to enter my employment start date (month and year), so that the system can correctly narrow down the months which user can create calculations.
+**Story Statement:** As an employee, I want to enter my employment start date (month and year), so that the system can correctly narrow down the months for which I can create calculations (e.g., from employment month to current month).
 
-**Business Value:** Ensures accurate limit calculations:
-
-- Master Learner: **3,000 PLN if joined January 1st - June 30th, 1,500 PLN if joined July 1st - December 31st** (see [Business Rules](#-business-rules) section)
-- Integrations: Fixed 1,500 PLN quarterly (not dependent on employment date)
-- Master Care: Bi-monthly periods are consistent regardless of start date
+**Business Value:** Employment date is used for **month/year selector guardrails only** (restrict selectable months to from-employment to current). It is **not** used for Master Learner or Integrations limit calculation; ML is fixed 500 PLN per bi-monthly period and Integrations 1,500 PLN per quarter (no employment-date dependency). See [Business Rules](#-business-rules).
 
 **Acceptance Criteria:**
 
@@ -2186,37 +2138,30 @@
 - And I can update my employment date only if no calculations exist yet
 - And once calculations exist, the employment date cannot be changed (button disabled with tooltip explanation)
 - And the employment date is used for:
-  - Master Learner limit calculation (3,000 vs 1,500 PLN based on join month)
-  - Display in usage/limit summary on home page
+  - Month/year selector: restrict selectable months to from employment to current (guardrails)
+  - Display in settings or profile (optional)
 - And if employment date is not set:
-  - System uses default limit (3,000 PLN for ML)
-  - Integrations limit is always 1,500 PLN (fixed, not dependent on employment date)
-  - Warning message suggests setting employment date for accurate ML limits
-  - System still functions but may show incorrect ML limits
+  - Month selector may default to a reasonable range (e.g., 2 years ago to current)
+  - ML limit is always 500 PLN per bi-monthly period; Integrations 1,500 PLN per quarter (no dependency on employment date)
 
 **Edge Cases:**
 
 - Entering future employment date → Validation error: "Employment date cannot be in the future"
 - Entering very old employment date (e.g., 2000) → Accepted (may be valid for long-term employees)
 - Trying to change employment date after calculations exist → Button disabled, cannot open dialog, tooltip explains restriction
-- Employment date not set → System works with default limits, shows warning
-- Clearing employment date when calculations exist → Clear button hidden, cannot clear
+- Employment date not set → Month selector uses default range; ML/Integrations limits unaffected
 
-**Dependencies:** US-026, US-027
+**Dependencies:** US-022 (month selector), US-026, US-027 (limits do not depend on employment date)
 
-**Risks:**
-
-- Users may forget to set employment date, leading to incorrect ML limits
-- Users may set incorrect employment date initially (cannot change after calculations exist)
+**Risks:** Users may set incorrect employment date initially (cannot change after calculations exist)
 
 **Sub-Tasks:**
 
 - Design employment date input UI (month/year selector)
 - Implement employment date storage (localStorage or IndexedDB)
 - Add employment date validation (not in future, reasonable date range)
-- Integrate employment date into limit calculations (US-026, US-027)
+- Use employment date for month selector guardrails only (not for ML/Integrations limits)
 - Add employment date display/editing in settings or profile
-- Add warning when employment date not set
 - Implement check for existing calculations (disable changes if any exist)
 - Disable button and inputs when calculations exist
 - Add tooltip explaining restriction
@@ -2225,12 +2170,10 @@
 
 **References:**
 
-- Business rules:
-  - MasterLearner: See [Business Rules](#-business-rules) section - 3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec
-  - Integrations: Fixed 1,500 PLN quarterly (not dependent on employment date)
-- Q-008: Master Learner pro-rating (now resolved with this implementation)
+- Business rules: Master Learner 500 PLN per bi-monthly period (no employment dependency); Integrations 1,500 PLN quarterly; see [Business Rules](#-business-rules)
+- Q-008: Master Learner pro-rating (resolved by simplification: ML is now fixed 500 PLN per bi-monthly period)
 
-**Change Note:** New
+**Change Note:** Updated per feedback – employment date no longer used for ML limit; used for month selector guardrails only.
 
 ---
 
@@ -2393,9 +2336,9 @@
 
 **Story ID:** US-042  
 **Title:** Require Employment Date Before Creating Calculations  
-**Story Statement:** As a system, I want to require users to set their employment date before creating any calculations, so that benefit limits (especially Master Learner) are calculated accurately from the start.
+**Story Statement:** As a system, I want to require users to set their employment date before creating any calculations, so that the month selector can correctly restrict selectable months (from employment to current).
 
-**Business Value:** Prevents incorrect limit calculations by ensuring employment date is set before any calculations are created, avoiding the need for retroactive corrections.
+**Business Value:** Ensures month/year selector guardrails are correct from the start (user cannot select months before their employment). Note: Benefit limits (ML, Integrations) no longer depend on employment date; ML is fixed 500 PLN per bi-monthly period.
 
 **Acceptance Criteria:**
 
@@ -2403,8 +2346,8 @@
 - When the system detects no employment date is set
 - Then I see a blocking screen with:
   - Clear message: "Employment Date Required"
-  - Explanation of why it's needed (accurate ML limit calculation)
-  - Example: "3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec" (see [Business Rules](#-business-rules) section for authoritative specification)
+  - Explanation of why it's needed (month selector restricts selectable months to from employment to current)
+  - Example: "Month selector is restricted to months from your employment start to current month. Set your employment date to continue."
   - Button: "Go to Home Page to Set Employment Date"
 - And I cannot access the calculator form
 - And when I click the button
@@ -2558,10 +2501,10 @@
 
 ### Benefit Categories
 
-- **Master Learner (ML):** Annual learning and development benefit with employment-date-dependent limit. **Annual limit:** 3,000 PLN if joined January-June, 1,500 PLN if joined July-December. **Bi-monthly settlement period:** Can only be entered in settlement months (February, April, June, August, October, December). Settlement starts from February: payment for January-February period will be in March, for March-April in May, etc. Covers: English lessons, conferences, training, courses, certificates, tuition fees, books, coaching, and related logistics (transport, accommodation). See [Business Rules](#-business-rules) section for detailed specification. [MasterLearner.pdf]
+- **Master Learner (ML):** Learning and development benefit with **fixed 500 PLN every two months** (same calculation method as Master Care; no employment-date dependency). Bi-monthly period (Jan–Feb, Mar–Apr, etc.); can only be entered in settlement months (Feb, Apr, Jun, Aug, Oct, Dec). Covers: English lessons, conferences, training, courses, certificates, tuition fees, books, coaching, and related logistics. See [Business Rules](#-business-rules). [MasterLearner.pdf]
 - **Master Care (MC):** Health and sports benefit (750 PLN every 2 months per person). Bi-monthly period starting January (Jan-Feb, Mar-Apr, May-Jun, Jul-Aug, Sep-Oct, Nov-Dec). Covers: psychotherapy, doctors, medicines, sports memberships, equipment, supplements, children's medical expenses. [MasterCare.pdf]
-- **Integracje:** Team integration benefit with a fixed amount of 1,500 PLN quarterly per person (not dependent on employment date). Quarterly period (Q1, Q2, Q3, Q4). **For individual employees:** Only accommodation and transport expenses (nocleg i dojazd) can be settled through reimbursement system. **For organizers:** Group activities (restaurants, attractions, bowling, etc.) are handled separately using company cards loaded with pooled budgets. Budget does not accumulate between quarters (unused budget expires). [Integracje projektowe + przyjazdy do biura.pdf]
-- **Budżet na dojazdy i noclegi (Koszty bieżące):** Departmental budget for commutes and accommodation. Monthly period. Covers: programs, tools, travel to company events, fuel, train tickets (in rare cases). [Koszty bieżące i narzędzia pracy.pdf]
+- **Integracje (team-building):** In this app, "Integracje" means **team-building** (company/employee events, office visits, project get-togethers)—_not_ system/technical integrations. Benefit: fixed 1,500 PLN quarterly per person (no employment date dependency). Quarterly period (Q1–Q4). **For individual employees:** Only accommodation and transport (nocleg i dojazd) can be settled via reimbursement. **For organizers:** Group activities are handled separately with company cards. Budget does not accumulate between quarters. [Integracje projektowe + przyjazdy do biura.pdf]
+- **Budżet na dojazdy i noclegi:** **Removed.** This category was removed per product feedback; accommodation and travel in this context are covered under Integracje (team-building). Do not display or use in REIM.RAZEM or InvoiceHeaven string.
 - **Narzędzia (Tools):** Equipment and software purchases. Can be in PLN, USD, or EUR with exchange rate conversion. Part of Koszty bieżące (monthly period).
 - **Inne (Other):** Miscellaneous expenses not covered by other categories.
 
@@ -2573,54 +2516,45 @@
   - Timestamp (created/updated)
   - Optional name/description
   - Status (Saved, Submitted, Declined, Approved)
-  - Form values (ML, MC, Tools array, Budget, Integrations, Other)
+  - Form values (ML, MC, Tools array, Integrations, Other)
   - Generated InvoiceHeaven string
   - Total sum
   - Version history (optional, for edits)
 
 ### User Profile / Settings
 
-- **Employment Start Date:** Month and year when employee joined MasterBorn. Required for accurate Master Learner limit calculation:
-  - Master Learner: Determines annual limit (3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec)
-  - Integrations: Fixed 1,500 PLN quarterly (not dependent on employment date)
-  - Stored in localStorage or IndexedDB
-  - Can be updated at any time
+- **Employment Start Date:** Month and year when employee joined MasterBorn. Used for month/year selector guardrails (e.g. restrict to months from employment to current). **Not** used for Master Learner limit (ML is fixed 500 PLN per bi-monthly period; no employment dependency). Integracje: fixed 1,500 PLN quarterly (not dependent on employment date). Stored in localStorage or IndexedDB; can be updated per product rules.
 
 ### Period Definitions
 
-- **Monthly Period:** Calendar month (January, February, etc.). Applies to: Koszty bieżące, Budżet na dojazdy i noclegi.
-- **Bi-Monthly Period:** Two-month periods starting January: Jan-Feb, Mar-Apr, May-Jun, Jul-Aug, Sep-Oct, Nov-Dec. Settlement months: February, April, June, August, October, December. Applies to: Master Care and Master Learner (both settled bi-monthly, but Master Learner has annual limit while Master Care has per-period limit).
-- **Quarterly Period:** Three-month periods: Q1 (Jan-Mar), Q2 (Apr-Jun), Q3 (Jul-Sep), Q4 (Oct-Dec). Applies to: Integrations.
-- **Annual Period:** Calendar year (January-December). Applies to: Master Learner annual limit (3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec, based on employment start date).
+- **Monthly Period:** Calendar month (January, February, etc.). Applies to: Koszty bieżące (e.g. Tools).
+- **Bi-Monthly Period:** Two-month periods starting January: Jan-Feb, Mar-Apr, May-Jun, Jul-Aug, Sep-Oct, Nov-Dec. Settlement months: February, April, June, August, October, December. Applies to: Master Care (750 PLN/period) and Master Learner (500 PLN/period); both fixed per period, no employment dependency.
+- **Quarterly Period:** Three-month periods: Q1 (Jan-Mar), Q2 (Apr-Jun), Q3 (Jul-Sep), Q4 (Oct-Dec). Applies to: Integracje (team-building), 1,500 PLN per quarter.
 
 ### Calculations
 
-- **REIM.RAZEM:** Reimbursement subtotal = Tools (PLN) + Budget + Integrations + Other
+- **REIM.RAZEM:** Reimbursement subtotal = Tools (PLN) + Integrations + Other (Budget category removed.)
 - **Total Sum:** Grand total = ML + MC + REIM.RAZEM
 
 ### InvoiceHeaven Format
 
-String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na dojazdy i noclegi;{budzet};integracje;{integracje};inne;{inne}`
+String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};integracje;{integracje};inne;{inne}`  
+_(No "budżet na dojazdy i noclegi" segment; accommodation/travel covered under Integracje / team-building.)_
 
 ### Validation Rules
 
 **Per-Entry Validation:**
 
-- Master Learner: 0-6,000 PLN (no negatives, max 6,000 per entry)
-- Master Care: 0-500 PLN (no negatives, max 500 per entry)
-- All other fields: ≥ 0 (no negatives, no upper limit specified per entry)
+- Master Learner: 0–500 PLN per entry (no negatives; max 500 per bi-monthly period; period-based input same as Master Care)
+- Master Care: 0–750 PLN per entry (no negatives; max 750 per bi-monthly period)
+- All other fields: ≥ 0 (no negatives; no upper limit specified per entry)
 - Tools exchange rate: Required for non-PLN currencies
 
 **Accumulated Limit Validation (US-027):**
 
-- Master Learner: Sum of all ML entries in current calendar year ≤ limit based on employment start date. Can only be entered in settlement months (February, April, June, August, October, December):
-  - **If joined January 1st - June 30th:** Limit = 3,000 PLN
-  - **If joined July 1st - December 31st:** Limit = 1,500 PLN
-  - **If employment date not set:** Default to 3,000 PLN (with warning to set employment date for accurate limits)
-  - See [Business Rules](#-business-rules) section for authoritative specification
-- Master Care: Sum of all MC entries in current bi-monthly period ≤ 750 PLN
-- Integrations: Sum of all Integrations entries (individual travel expenses only - accommodation and transport) in current quarter ≤ 1,500 PLN (fixed limit, not dependent on employment date). Note: Group activities handled by organizers are not tracked here.
-- Budget (Koszty bieżące): Monthly period (no specific limit, but tracked)
+- Master Learner: Sum of all ML entries in **current bi-monthly period** ≤ 500 PLN. Can only be entered in settlement months (February, April, June, August, October, December). No employment-date dependency. See [Business Rules](#-business-rules).
+- Master Care: Sum of all MC entries in current bi-monthly period ≤ 750 PLN.
+- Integracje (team-building): Sum of all Integrations entries (individual travel expenses only) in current quarter ≤ 1,500 PLN (fixed limit, not dependent on employment date). Group activities handled by organizers are not tracked here.
 
 ---
 
@@ -2629,20 +2563,19 @@ String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na
 ### Flow 1: Standard Reimbursement Calculation
 
 1. User opens calculator
-2. Enters Master Learner amount (if applicable)
+2. Enters Master Learner amount (if applicable; max 500 PLN per bi-monthly period)
 3. Enters Master Care amount (if applicable)
 4. Adds tools (if applicable):
    - Enters tool name
    - Enters amount
    - Selects currency
    - Enters exchange rate (if non-PLN)
-5. Enters Budget amount (if applicable)
-6. Enters Integrations amount (if applicable)
-7. Enters Other amount (if applicable)
-8. Clicks "Calculate"
-9. Reviews results in dialog
-10. Copies InvoiceHeaven string to clipboard
-11. Pastes into InvoiceHeaven system
+5. Enters Integrations (team-building) amount (if applicable)
+6. Enters Other amount (if applicable)
+7. Clicks "Calculate"
+8. Reviews results in dialog
+9. Copies InvoiceHeaven string to clipboard
+10. Pastes into InvoiceHeaven system
 
 ### Flow 2: Multi-Currency Tools Calculation
 
@@ -2701,7 +2634,7 @@ String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na
 1. User starts new calculation
 2. System displays remaining budget indicators next to each field
 3. User enters Master Learner amount (e.g., 1,000 PLN)
-4. System checks: accumulated ML (e.g., 2,500) + new (1,000) = 3,500 > limit (3,000 PLN if joined Jan-Jun, 1,500 PLN if joined Jul-Dec - see [Business Rules](#-business-rules) section)
+4. System checks: accumulated ML in current bi-monthly period (e.g., 300) + new (250) = 550 > limit (500 PLN per bi-monthly period - see [Business Rules](#-business-rules) section)
 5. System shows validation error: "Would exceed annual limit. Remaining: 500 PLN"
 6. User adjusts to 500 PLN or less
 7. Validation passes, user can save calculation
@@ -2926,7 +2859,7 @@ String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na
 
 - **Primary:** `AppStateProvider` holds `employmentDate`; components such as `UsageSummary`, `MonthYearSelect`, and `EmploymentDateManager` consume it via `useAppState()`. `UsageSummary` receives `calculations` and `employmentDate` as props from the parent (e.g. home page), which gets them from context.
 - **Event (narrow use):** `employmentDateChanged` is dispatched in `import-dialog.tsx` after import so the app can refresh; reactive updates elsewhere are via context, not event listeners.
-- **Date:** 2026-01-16  
+- **Date:** 2026-01-16
 - **Status:** Accepted (implementation aligned with context-based reactivity as of 2026-01-28)
 
 ---
@@ -2968,9 +2901,8 @@ String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na
 ### Q-001: Budget Upper Limit
 
 **Question:** Should "Budżet na dojazdy i noclegi" have an upper limit validation?  
-**Context:** Currently no upper limit is enforced, but business rules may specify department-specific limits.  
-**Impact:** Could prevent invalid submissions if limits exist.  
-**Status:** Needs business confirmation
+**Context:** This category was removed per product feedback (Jan 2026). Accommodation and travel are covered under Integracje (team-building).  
+**Status:** ✅ OBSOLETE – Budget category removed; no separate budget field in formula or REIM.RAZEM.
 
 ### Q-002: Integrations Upper Limit
 
@@ -2982,9 +2914,8 @@ String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na
 ### Q-003: Master Learner Annual Tracking
 
 **Question:** Should the calculator track annual usage of Master Learner (3,000 PLN limit)?  
-**Context:** Currently only validates per-entry max (6,000), but annual limit is 3,000 PLN.  
-**Impact:** Would require backend/database to track usage across multiple submissions.  
-**Status:** ✅ RESOLVED - Implemented in US-026 and US-027 (localStorage-based tracking)
+**Context:** Per product feedback (Jan 2026), ML was simplified to **500 PLN per bi-monthly period** (same method as Master Care; no employment-date dependency, no annual cap).  
+**Status:** ✅ SUPERSEDED – ML is now bi-monthly 500 PLN; tracked in US-026 and US-027 per bi-monthly period (not annual).
 
 ### Q-004: Master Care Period Tracking
 
@@ -3017,9 +2948,8 @@ String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na
 ### Q-008: Master Learner Pro-Rated Amount for Mid-Year Joiners
 
 **Question:** Should the calculator automatically detect if user joined July-December and apply 1,500 PLN limit instead of 3,000 PLN?  
-**Context:** Business rule states 1,500 PLN for employees joining July-December.  
-**Impact:** Would require user profile/join date information.  
-**Status:** Needs business confirmation - may require user input or profile setup
+**Context:** Per product feedback (Jan 2026), ML is now **fixed 500 PLN per bi-monthly period** for all employees (no pro-rating, no employment-date dependency).  
+**Status:** ✅ RESOLVED – ML simplified; single rule 500 PLN every two months; no join-date logic needed.
 
 ---
 
@@ -3027,10 +2957,9 @@ String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na
 
 ### Immediate (After User Confirmation)
 
-1. **Confirm validation limits:** Get business confirmation on Q-001 and Q-002 (Budget and Integrations upper limits)
+1. **Confirm validation limits:** Get business confirmation on Q-002 (Integrations upper limit) if not yet confirmed. Q-001 (Budget) obsolete – category removed. Q-008 (ML pro-rating) resolved – ML is 500 PLN per bi-monthly period.
 2. **Review Epic priorities:** Confirm if all epics are in correct priority order
-3. **Clarify Master Learner pro-rating:** Determine Q-008 - how to handle 1,500 PLN limit for mid-year joiners
-4. **Confirm data storage approach:** Validate D-006 (localStorage strategy) is acceptable
+3. **Confirm data storage approach:** Validate D-006 (localStorage strategy) is acceptable
 
 ### Short-term Enhancements (Epic 6 Implementation)
 
@@ -3043,7 +2972,7 @@ String format: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na
 7. **Add copy from list:** US-037 (copy InvoiceHeaven string directly from list)
 8. **Add period-based tracking:** US-026 (accumulated usage calculation)
 9. **Implement limit validation:** US-027 (validate against accumulated limits)
-10. **Add period-based input validation:** US-033 (restrict MC/Integrations to correct periods)
+10. **Add period-based input validation:** US-033 (restrict ML/MC/Integrations to correct periods)
 11. **Add status management:** US-029, US-030 (filter and mark status)
 12. **Add remaining budget indicators:** US-028 (display remaining budget)
 13. **Implement export/import:** US-031, US-032 (backup and restore calculations)

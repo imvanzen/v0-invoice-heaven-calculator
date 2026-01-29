@@ -10,15 +10,14 @@ export interface Calculation {
   updatedAt: Date;
   status: CalculationStatus;
   benefitRulesVersion: string; // Version of benefit rules used for this calculation
-  
+
   // Form values
   masterLearner: number;
   masterCare: number;
   tools: Tool[];
-  budzet: number;
   integracje: number;
   inne: number;
-  
+
   // Calculated values (stored for quick access)
   toolsTotal: number;
   reimRazem: number;
@@ -31,7 +30,6 @@ export interface CalculationInput {
   masterLearner: number;
   masterCare: number;
   tools: Tool[];
-  budzet: number;
   integracje: number;
   inne: number;
   toolsTotal: number;
@@ -46,4 +44,3 @@ export interface EmploymentDate {
   month: number; // 1-12
   year: number;
 }
-

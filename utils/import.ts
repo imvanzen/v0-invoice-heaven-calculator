@@ -17,7 +17,7 @@ export interface ImportValidationResult {
   };
 }
 
-/** Raw calculation shape from JSON (dates are strings) */
+/** Raw calculation shape from JSON (dates are strings). budzet optional for backward compat with old exports. */
 interface RawCalculation {
   id: string;
   month: string;
@@ -28,7 +28,7 @@ interface RawCalculation {
   masterLearner: number;
   masterCare: number;
   tools: unknown[];
-  budzet: number;
+  budzet?: number;
   integracje: number;
   inne: number;
   toolsTotal: number;
@@ -53,8 +53,9 @@ function reviveDate(value: unknown): Date {
 export function normalizeImportCalculations(raw: unknown[]): Calculation[] {
   return raw.map((item) => {
     const calc = item as RawCalculation;
+    const { budzet: _dropped, ...rest } = calc;
     return {
-      ...calc,
+      ...rest,
       createdAt: reviveDate(calc.createdAt),
       updatedAt: reviveDate(calc.updatedAt),
       status: (

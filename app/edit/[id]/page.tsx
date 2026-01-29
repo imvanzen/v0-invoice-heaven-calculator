@@ -66,7 +66,6 @@ function EditCalculationForm() {
             month: calc.month,
             masterLearner: calc.masterLearner,
             masterCare: calc.masterCare,
-            budzet: calc.budzet,
             integracje: calc.integracje,
             inne: calc.inne,
             tools: toolsForForm,
@@ -105,15 +104,9 @@ function EditCalculationForm() {
           multiplyMoney(Number(t.amount) || 0, Number(t.exchangeRate) || 1),
         ),
       );
-      const budzet = Number(data.budzet) || 0;
       const integracje = Number(data.integracje) || 0;
       const inne = Number(data.inne) || 0;
-      const reimRazemFiltered = addMoney(
-        toolsTotalFiltered,
-        budzet,
-        integracje,
-        inne,
-      );
+      const reimRazemFiltered = addMoney(toolsTotalFiltered, integracje, inne);
       const masterLearner = Number(data.masterLearner) || 0;
       const masterCare = Number(data.masterCare) || 0;
       const totalSumFiltered = addMoney(
@@ -126,7 +119,6 @@ function EditCalculationForm() {
         masterLearner,
         masterCare,
         tools: filteredTools,
-        budzet,
         integracje,
         inne,
         toolsTotal: toolsTotalFiltered,
@@ -136,7 +128,6 @@ function EditCalculationForm() {
           masterLearner,
           masterCare,
           toolsTotal: toolsTotalFiltered,
-          budzet,
           integracje,
           inne,
           reimRazem: reimRazemFiltered,

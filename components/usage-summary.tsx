@@ -8,23 +8,19 @@ import { UsageCard } from "@/components/usage-card";
 
 interface UsageSummaryProps {
   calculations: Calculation[];
-  employmentDate: EmploymentDate | null;
+  employmentDate?: EmploymentDate | null;
 }
 
-export function UsageSummary({
-  calculations,
-  employmentDate,
-}: UsageSummaryProps) {
+export function UsageSummary({ calculations }: UsageSummaryProps) {
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonthString());
 
   useEffect(() => {
     setCurrentMonth(getCurrentMonthString());
   }, []);
 
-  // Recalculate summary when employmentDate, calculations, or currentMonth changes
   const summary = useMemo(
-    () => calculateUsageSummary(calculations, currentMonth, employmentDate),
-    [calculations, currentMonth, employmentDate],
+    () => calculateUsageSummary(calculations, currentMonth),
+    [calculations, currentMonth],
   );
 
   return (
@@ -33,16 +29,12 @@ export function UsageSummary({
         Current Period Usage
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <UsageCard
-          title="Master Learner"
-          usage={summary.masterLearner}
-          showEmploymentWarning={!employmentDate}
-        />
+        <UsageCard title="Master Learner" usage={summary.masterLearner} />
         <UsageCard title="Master Care" usage={summary.masterCare} />
         <UsageCard
-          title="Integrations"
+          title="Integrations (team-building)"
           usage={summary.integrations}
-          additionalNote="Travel and Accommodation expenses"
+          additionalNote="Travel and accommodation expenses"
         />
       </div>
     </div>

@@ -125,7 +125,6 @@ export function CalculationList({
               <TableHead className="text-right">ML</TableHead>
               <TableHead className="text-right">MC</TableHead>
               <TableHead className="text-right">Tools</TableHead>
-              <TableHead className="text-right">Budget</TableHead>
               <TableHead className="text-right">Integrations</TableHead>
               <TableHead className="text-right">Other</TableHead>
               <TableHead className="text-right">Total</TableHead>
@@ -151,9 +150,6 @@ export function CalculationList({
                   {calc.toolsTotal > 0
                     ? formatCurrency(calc.toolsTotal, true)
                     : "-"}
-                </TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {calc.budzet > 0 ? formatCurrency(calc.budzet, true) : "-"}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {calc.integracje > 0

@@ -69,7 +69,7 @@ export function CalculationFormProvider({
   defaultValues,
   editingCalculationId,
 }: CalculationFormProviderProps) {
-  const { employmentDate, calculations } = useAppState();
+  const { calculations } = useAppState();
   const [tools, setTools] = useState<Tool[]>(() =>
     editingCalculationId ? [] : [createEmptyTool()],
   );
@@ -90,11 +90,8 @@ export function CalculationFormProvider({
     DraftToolsService.save(tools).catch(() => {});
   }, [editingCalculationId, tools]);
 
-  // Create schema with employment date context for accurate Master Learner validation
-  const schema = useMemo(
-    () => createCalculationFormSchema(employmentDate),
-    [employmentDate],
-  );
+  // Schema: period-based validation for ML/MC (no employment-date dependency)
+  const schema = useMemo(() => createCalculationFormSchema(), []);
 
   // Initialize form with React Hook Form + Zod
   const form = useForm<CalculationFormData>({
@@ -104,7 +101,6 @@ export function CalculationFormProvider({
       month: defaultValues?.month || getCurrentMonthString(),
       masterLearner: defaultValues?.masterLearner || 0,
       masterCare: defaultValues?.masterCare || 0,
-      budzet: defaultValues?.budzet || 0,
       integracje: defaultValues?.integracje || 0,
       inne: defaultValues?.inne || 0,
       tools: defaultValues?.tools || [],
@@ -129,18 +125,12 @@ export function CalculationFormProvider({
     return addMoney(...toolAmounts);
   }, [tools]);
 
-  // Calculate REIM.RAZEM (tools + budget + integrations + other)
+  // Calculate REIM.RAZEM (tools + integrations + other; budget category removed)
   const reimRazem = useMemo(() => {
-    const budzet = Number(watchedValues.budzet) || 0;
     const integracje = Number(watchedValues.integracje) || 0;
     const inne = Number(watchedValues.inne) || 0;
-    return addMoney(toolsTotal, budzet, integracje, inne);
-  }, [
-    toolsTotal,
-    watchedValues.budzet,
-    watchedValues.integracje,
-    watchedValues.inne,
-  ]);
+    return addMoney(toolsTotal, integracje, inne);
+  }, [toolsTotal, watchedValues.integracje, watchedValues.inne]);
 
   // Calculate total sum (ML + MC + REIM.RAZEM)
   const totalSum = useMemo(() => {
@@ -154,7 +144,6 @@ export function CalculationFormProvider({
     masterLearner: Number(watchedValues.masterLearner) || 0,
     masterCare: Number(watchedValues.masterCare) || 0,
     toolsTotal,
-    budzet: Number(watchedValues.budzet) || 0,
     integracje: Number(watchedValues.integracje) || 0,
     inne: Number(watchedValues.inne) || 0,
     reimRazem,
@@ -175,7 +164,7 @@ export function CalculationFormProvider({
   );
   const budgetValidation = useBudgetValidation(
     selectedMonth,
-    employmentDate,
+    null, // ML no longer depends on employment date (500 PLN per bi-monthly period)
     calculations,
     budgetValidationValues,
     editingCalculationId,
@@ -187,7 +176,6 @@ export function CalculationFormProvider({
       month: getCurrentMonthString(),
       masterLearner: 0,
       masterCare: 0,
-      budzet: 0,
       integracje: 0,
       inne: 0,
       tools: [],
@@ -212,7 +200,6 @@ export function CalculationFormProvider({
           month: getCurrentMonthString(), // Keep current month
           masterLearner: calc.masterLearner,
           masterCare: calc.masterCare,
-          budzet: calc.budzet,
           integracje: calc.integracje,
           inne: calc.inne,
           tools: [],

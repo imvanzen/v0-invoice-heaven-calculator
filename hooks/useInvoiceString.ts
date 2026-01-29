@@ -5,7 +5,6 @@ interface InvoiceStringParams {
   masterLearner: number;
   masterCare: number;
   toolsTotal: number;
-  budzet: number;
   integracje: number;
   inne: number;
   reimRazem: number;
@@ -13,7 +12,8 @@ interface InvoiceStringParams {
 
 /**
  * Template for Invoice Heaven string format
- * Uses a well-defined structure that can be easily modified
+ * Format: ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};integracje;{integracje};inne;{inne}
+ * (Budget category removed per product feedback; accommodation/travel under Integracje)
  */
 const INVOICE_TEMPLATE = {
   separator: ";",
@@ -33,10 +33,6 @@ const INVOICE_TEMPLATE = {
     {
       key: "narzędzia",
       getValue: (p: InvoiceStringParams) => formatMoney(p.toolsTotal),
-    },
-    {
-      key: "budżet na dojazdy i noclegi",
-      getValue: (p: InvoiceStringParams) => formatMoney(p.budzet),
     },
     {
       key: "integracje",
@@ -77,7 +73,6 @@ export function useInvoiceString(params: InvoiceStringParams): string {
       params.masterLearner,
       params.masterCare,
       params.toolsTotal,
-      params.budzet,
       params.integracje,
       params.inne,
       params.reimRazem,
@@ -113,9 +108,6 @@ export function parseInvoiceString(
         break;
       case "narzędzia":
         result.toolsTotal = Number(value);
-        break;
-      case "budżet na dojazdy i noclegi":
-        result.budzet = Number(value);
         break;
       case "integracje":
         result.integracje = Number(value);
