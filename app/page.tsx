@@ -1,428 +1,202 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Monitor, Copy, Check } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus, FileDown, FileUp } from "lucide-react";
+import { SettingsService } from "@/lib/db";
+import type { Calculation } from "@/types/calculation";
+import { CalculationList } from "@/components/calculation-list";
+import { UsageSummary } from "@/components/usage-summary";
+import { ImportDialog } from "@/components/import-dialog";
+import { EmploymentDateManager } from "@/components/employment-date-manager";
+import { exportCalculationsToJSON } from "@/utils/export";
+import type { UserSettings } from "@/types/settings";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { ToolsSection } from "@/components/tools-section";
-import { addFinancialValues } from "@/utils/financialMath";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAppState } from "@/providers/app-state-provider";
+import { PageHeader } from "@/components/page-header";
+import { LoadingState } from "@/components/ui/loading-state";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageFooter } from "@/components/page-footer";
 
-export default function Calculator() {
-  const [values, setValues] = useState({
-    masterLearner: "",
-    masterCare: "",
-    budzet: "",
-    integracje: "",
-    inne: "",
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showDialog, setShowDialog] = useState(false);
-  const [output, setOutput] = useState("");
-  const [totalSum, setTotalSum] = useState(0);
-  const [copied, setCopied] = useState(false);
-  const [copiedSum, setCopiedSum] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [showSumTooltip, setShowSumTooltip] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const outputRef = useRef<HTMLDivElement>(null);
+export default function HomePage() {
+  // Use app state context
+  const {
+    calculations,
+    employmentDate,
+    isCalculationsLoading,
+    refreshCalculations,
+  } = useAppState();
 
+  // Get current theme from next-themes
+  const { theme: currentTheme } = useTheme();
+
+  // Local UI state
+  const [filteredCalculations, setFilteredCalculations] = useState<
+    Calculation[]
+  >([]);
+  const [statusFilter, setStatusFilter] = useState<string | null>("all");
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const router = useRouter();
+
+  // Filter calculations when calculations or filter changes
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const handleInputChange = useCallback((field: string, value: string) => {
-    setValues((prev) => ({ ...prev, [field]: value }));
-
-    if (value === "") {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
+    if (!statusFilter || statusFilter === "all") {
+      setFilteredCalculations(calculations);
     } else {
-      const numValue = Number(value);
-      if (numValue < 0) {
-        setErrors((prev) => ({ ...prev, [field]: "Value cannot be negative" }));
-      } else if (
-        (field === "masterLearner" && numValue > 6000) ||
-        (field === "masterCare" && numValue > 500)
-      ) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: `Value cannot exceed ${
-            field === "masterLearner" ? 6000 : 500
-          }`,
-        }));
-      } else {
-        setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
-        });
-      }
+      setFilteredCalculations(
+        calculations.filter((calc) => calc.status === statusFilter),
+      );
     }
-  }, []);
+  }, [calculations, statusFilter]);
 
-  const handleCalculate = useCallback(() => {
-    if (Object.keys(errors).length > 0) {
-      return; // Don't proceed if there are validation errors
+  function handleAddNew() {
+    router.push("/create");
+  }
+
+  async function handleExport() {
+    if (calculations.length === 0) {
+      alert("No calculations to export");
+      return;
     }
 
-    const processedValues = Object.entries(values).reduce(
-      (acc, [key, value]) => {
-        acc[key] = value === "" ? "0" : value;
-        return acc;
-      },
-      {} as Record<string, string>
-    );
+    try {
+      const settings = await SettingsService.get();
 
-    // Calculate sum only for non-empty fields
-    const budzetValue =
-      processedValues.budzet === "0" ? 0 : Number(processedValues.budzet);
-    const integracjeValue =
-      processedValues.integracje === "0"
-        ? 0
-        : Number(processedValues.integracje);
-    const inneValue =
-      processedValues.inne === "0" ? 0 : Number(processedValues.inne);
-    const mlValue =
-      processedValues.masterLearner === "0"
-        ? 0
-        : Number(processedValues.masterLearner);
-    const mcValue =
-      processedValues.masterCare === "0"
-        ? 0
-        : Number(processedValues.masterCare);
-    const toolsTotal =
-      processedValues.narzedzia === "0" ? 0 : Number(processedValues.narzedzia);
+      // Get current theme from next-themes (source of truth for active theme)
+      // This ensures we export the actual current theme, not a stale IndexedDB value
+      const themeToExport =
+        currentTheme && ["light", "dark", "system"].includes(currentTheme)
+          ? (currentTheme as "light" | "dark" | "system")
+          : settings?.theme || "system";
 
-    const razem = addFinancialValues(
-      toolsTotal,
-      budzetValue,
-      integracjeValue,
-      inneValue
-    ).toFixed(2);
+      // Merge current theme with IndexedDB settings
+      const settingsWithCurrentTheme: UserSettings | undefined = settings
+        ? {
+            ...settings,
+            theme: themeToExport,
+          }
+        : {
+            id: "user-settings",
+            employmentDate: null,
+            theme: themeToExport,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
 
-    const result = `ML;${processedValues.masterLearner};MC;${
-      processedValues.masterCare
-    };REIM.RAZEM;${razem};narzędzia;${toolsTotal.toFixed(
-      2
-    )};budżet na dojazdy i noclegi;${processedValues.budzet};integracje;${
-      processedValues.integracje
-    };inne;${processedValues.inne}`;
-    setOutput(result);
-
-    const sum = addFinancialValues(
-      mlValue,
-      mcValue,
-      toolsTotal,
-      budzetValue,
-      integracjeValue,
-      inneValue
-    );
-    setTotalSum(sum);
-
-    setShowDialog(true);
-  }, [errors, values]);
-
-  const handleCopy = useCallback(
-    async (
-      text: string,
-      setCopiedState: (state: boolean) => void,
-      setTooltipState: (state: boolean) => void
-    ) => {
-      await navigator.clipboard.writeText(text);
-      setCopiedState(true);
-      setTooltipState(true);
-      setTimeout(() => {
-        setCopiedState(false);
-        setTooltipState(false);
-      }, 2000);
-    },
-    []
-  );
-
-  const handleOutputClick = useCallback(() => {
-    if (outputRef.current) {
-      const range = document.createRange();
-      range.selectNodeContents(outputRef.current);
-      const selection = window.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
+      exportCalculationsToJSON(calculations, settingsWithCurrentTheme);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export calculations");
     }
-  }, []);
+  }
 
-  const handleClear = useCallback(() => {
-    setValues({
-      masterLearner: "",
-      masterCare: "",
-      budzet: "",
-      integracje: "",
-      inne: "",
-    });
-    setErrors({}); // Clear all errors
-  }, []);
+  function handleImport() {
+    setShowImportDialog(true);
+  }
+
+  function handleImportComplete() {
+    refreshCalculations();
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-3xl">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <div className="space-y-1">
-            <CardTitle>Calculator</CardTitle>
-            <CardDescription>
-              Enter your reimbursements to calculate Invoice Heaven string.
-            </CardDescription>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                {!mounted ? (
-                  <Monitor className="h-[1.2rem] w-[1.2rem]" />
-                ) : theme === "light" ? (
-                  <Sun className="h-[1.2rem] w-[1.2rem]" />
-                ) : theme === "dark" ? (
-                  <Moon className="h-[1.2rem] w-[1.2rem]" />
-                ) : (
-                  <Monitor className="h-[1.2rem] w-[1.2rem]" />
-                )}
+      <Card className="w-full max-w-6xl">
+        <PageHeader
+          description="Manage your monthly reimbursement calculations"
+          actions={
+            <>
+              <EmploymentDateManager />
+              <Button
+                variant="outline"
+                onClick={handleImport}
+                size="sm"
+                className="shrink-0"
+              >
+                <FileUp className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Import</span>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                <Sun className="mr-2 h-4 w-4" />
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                <Moon className="mr-2 h-4 w-4" />
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                <Monitor className="mr-2 h-4 w-4" />
-                System
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="masterLearner">Master Learner</Label>
-            <Input
-              id="masterLearner"
-              type="number"
-              value={values.masterLearner}
-              onChange={(e) =>
-                handleInputChange("masterLearner", e.target.value)
-              }
-              placeholder="0"
-              className={errors.masterLearner ? "border-destructive" : ""}
-            />
-            {errors.masterLearner && (
-              <p className="text-sm text-destructive">{errors.masterLearner}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="masterCare">Master Care</Label>
-            <Input
-              id="masterCare"
-              type="number"
-              value={values.masterCare}
-              onChange={(e) => handleInputChange("masterCare", e.target.value)}
-              placeholder="0"
-              className={errors.masterCare ? "border-destructive" : ""}
-            />
-            {errors.masterCare && (
-              <p className="text-sm text-destructive">{errors.masterCare}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-base font-medium">Narzędzia</Label>
-            <ToolsSection
-              onChange={(value) =>
-                handleInputChange("narzedzia", String(value))
+              <Button
+                variant="outline"
+                onClick={handleExport}
+                size="sm"
+                className="shrink-0"
+                disabled={calculations.length === 0}
+              >
+                <FileDown className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Export</span>
+              </Button>
+              <Button onClick={handleAddNew} size="sm" className="shrink-0">
+                <Plus className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Add New</span>
+              </Button>
+            </>
+          }
+        />
+        <CardContent>
+          {isCalculationsLoading ? (
+            <LoadingState message="Loading calculations..." />
+          ) : calculations.length === 0 ? (
+            <EmptyState
+              title="No calculations yet. Create your first one!"
+              action={
+                <Button onClick={handleAddNew}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create First Calculation
+                </Button>
               }
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="budzet">Budżet na dojazdy i noclegi</Label>
-            <Input
-              id="budzet"
-              type="number"
-              value={values.budzet}
-              onChange={(e) => handleInputChange("budzet", e.target.value)}
-              placeholder="0"
-              className={errors.budzet ? "border-destructive" : ""}
-            />
-            {errors.budzet && (
-              <p className="text-sm text-destructive">{errors.budzet}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="integracje">Integracje</Label>
-            <Input
-              id="integracje"
-              type="number"
-              value={values.integracje}
-              onChange={(e) => handleInputChange("integracje", e.target.value)}
-              placeholder="0"
-              className={errors.integracje ? "border-destructive" : ""}
-            />
-            {errors.integracje && (
-              <p className="text-sm text-destructive">{errors.integracje}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="inne">Inne</Label>
-            <Input
-              id="inne"
-              type="number"
-              value={values.inne}
-              onChange={(e) => handleInputChange("inne", e.target.value)}
-              placeholder="0"
-              className={errors.inne ? "border-destructive" : ""}
-            />
-            {errors.inne && (
-              <p className="text-sm text-destructive">{errors.inne}</p>
-            )}
-          </div>
-
-          <div className="flex justify-end gap-4 pt-4">
-            <Button variant="outline" onClick={handleClear}>
-              Clear
-            </Button>
-            <Button onClick={handleCalculate}>Calculate</Button>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              <UsageSummary
+                calculations={calculations}
+                employmentDate={employmentDate}
+              />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {filteredCalculations.length} calculation
+                    {filteredCalculations.length !== 1 ? "s" : ""} found
+                    {statusFilter !== "all" && ` (filtered by ${statusFilter})`}
+                  </p>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="saved">Saved</SelectItem>
+                      <SelectItem value="submitted">Submitted</SelectItem>
+                      <SelectItem value="declined">Declined</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <CalculationList
+                  calculations={filteredCalculations}
+                  onUpdate={refreshCalculations}
+                />
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
-      <a
-        href="https://forms.gle/wGpx3q8DCcsHWGou9"
-        className="mt-4 text-sm text-muted-foreground hover:underline"
-        rel="noopener noreferrer nofollow"
-        target="_blank"
-      >
-        Leave feedback 📣
-      </a>
-      <span className="text-sm text-muted-foreground/20">
-        Version {process.env.NEXT_PUBLIC_VERSION}
-      </span>
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Generated Output</DialogTitle>
-            <DialogDescription>
-              Here&apos;s your Invoice Heaven string:
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between bg-muted rounded-md p-3 gap-4">
-              <div
-                ref={outputRef}
-                onClick={handleOutputClick}
-                className="break-all font-mono text-sm cursor-text grow"
-              >
-                {output}
-              </div>
-              <TooltipProvider>
-                <Tooltip open={showTooltip}>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      className="shadow-md transition-all hover:scale-105"
-                      onClick={() =>
-                        handleCopy(output, setCopied, setShowTooltip)
-                      }
-                    >
-                      {copied ? (
-                        <Check className="h-4 w-4 mr-1" />
-                      ) : (
-                        <Copy className="h-4 w-4 mr-1" />
-                      )}
-                      {copied ? "Copied" : "Copy"}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    className="animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=top]:slide-in-from-bottom-2 tooltip-pop"
-                  >
-                    <p>Copied to clipboard!</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex items-center justify-between bg-muted rounded-md p-3 gap-4">
-              <div>
-                <h4 className="font-semibold">Total Sum (PLN):</h4>
-                <p className="text-2xl font-bold">{totalSum.toFixed(2)} zł</p>
-              </div>
-              <TooltipProvider>
-                <Tooltip open={showSumTooltip}>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      className="shadow-md transition-all hover:scale-105"
-                      onClick={() =>
-                        handleCopy(
-                          totalSum.toFixed(2),
-                          setCopiedSum,
-                          setShowSumTooltip
-                        )
-                      }
-                    >
-                      {copiedSum ? (
-                        <Check className="h-4 w-4 mr-1" />
-                      ) : (
-                        <Copy className="h-4 w-4 mr-1" />
-                      )}
-                      {copiedSum ? "Copied" : "Copy"}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    className="animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=top]:slide-in-from-bottom-2 tooltip-pop"
-                  >
-                    <p>Copied to clipboard!</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+
+      <PageFooter />
+
+      <ImportDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        onImportComplete={handleImportComplete}
+      />
     </div>
   );
 }

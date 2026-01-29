@@ -1,0 +1,14 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "preview": true
+    }
+  },
+  "buildCommand": "bun run build",
+  "devCommand": "bun run dev",
+  "installCommand": "bun install",
+  "framework": "nextjs",
+  "bunVersion": "1.x"
+}
+

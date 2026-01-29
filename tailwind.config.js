@@ -1,5 +1,3 @@
-import tailwindcssAnimate from "tailwindcss-animate";
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -9,14 +7,4 @@ export default {
     "./src/**/*.{ts,tsx}",
     "*.{js,ts,jsx,tsx,mdx}",
   ],
-  plugins: [tailwindcssAnimate],
-  theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
-  },
 }

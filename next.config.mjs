@@ -11,15 +11,12 @@ const packageJson = JSON.parse(
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactCompiler: true,
   typescript: {
     ignoreBuildErrors: true,
   },
   images: {
     unoptimized: true,
-  },
- 
-  eslint: {
-    ignoreDuringBuilds: true,
   },
   env: {
     NEXT_PUBLIC_VERSION: packageJson.version,

@@ -1,11 +1,13 @@
 node_modules
 .next
 .env
+next-env.d.ts
+
+# Lock files (using bun)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
 
 # Cursor Rules
 # personal agent rules files
-.cursor/rules/senior-full-stack-developer_agent.mdc
-.cursor/rules/senior-quality-assurance_agent.mdc
-.cursor/rules/senior-project-manager_agent.mdc
-.cursor/rules/senior-designer_agent.mdc
-.cursor/rules/pr-workflow.mdc
+.cursor
