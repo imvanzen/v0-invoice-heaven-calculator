@@ -14,7 +14,6 @@ components/
 │   ├── master-learner-field.tsx
 │   ├── master-care-field.tsx
 │   ├── integracje-field.tsx
-│   ├── budget-field.tsx
 │   ├── other-field.tsx
 │   └── index.ts
 ├── calculation-form.tsx      # Shared form component
@@ -37,8 +36,7 @@ Each form field is now a self-contained component with its own logic:
 
 - **MasterLearnerField**: Handles Master Learner input with accumulated limit validation display
 - **MasterCareField**: Handles Master Care input with settlement month restrictions and validation
-- **IntegrationField**: Handles integrations input with quarterly limit validation
-- **BudgetField**: Simple budget input field
+- **IntegrationField**: Handles team building input with quarterly limit validation
 - **OtherField**: Simple other expenses input field
 
 **Benefits:**

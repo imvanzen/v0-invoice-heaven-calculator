@@ -222,7 +222,7 @@ export function validateIntegrationsAgainstLimit(
     const remaining = Math.max(0, quarterlyLimit - accumulated);
     return {
       isValid: false,
-      error: `Integrations: You have used ${accumulated} PLN this quarter for travel expenses. This entry (${newValue}) would exceed the quarterly limit of ${quarterlyLimit} PLN (fixed limit). Remaining: ${remaining} PLN. Note: Only individual travel expenses (accommodation and transport) are tracked here.`,
+      error: `Team building: You have used ${accumulated} PLN this quarter for travel expenses. This entry (${newValue}) would exceed the quarterly limit of ${quarterlyLimit} PLN (fixed limit). Remaining: ${remaining} PLN. Note: Only individual travel expenses (accommodation and transport) are tracked here.`,
     };
   }
 

@@ -15,21 +15,21 @@ Several docs are **out of date** relative to the code. The main gaps: provider A
 
 ### 1. TECHNICAL_DESCRIPTION.md
 
-| Doc says | Code reality |
-|----------|--------------|
-| `CalculationFormContext` has `form: UseFormReturn<...>` | No `form` in context; form is from `FormProvider` / `useFormContext()` |
-| `budgetValidation: BudgetValidationResult \| null` | `ReturnType<typeof useBudgetValidation> \| null` (same shape, type name differs) |
-| `<CalculationFormProvider mode="create">` | Create: `<CalculationFormProvider>`. Edit: `<CalculationFormProvider editingCalculationId={id}>`. No `mode` prop. |
-| calculation-form-provider: 226 lines | 276 lines |
-| app-state-provider: 186 lines | 293 lines |
-| create/page.tsx: 551 lines | 154 lines |
-| edit/[id]/page.tsx: 454 lines | 185 lines |
-| Component list includes `benefit-input.tsx` | No such file; form uses `form-fields/` (master-learner-field, master-care-field, integracje-field, budget-field, other-field) |
-| utils: `financialMath.ts` | No file; financial helpers in `utils/money.ts` (e.g. `addMoney`, `multiplyMoney`) |
+| Doc says                                                                   | Code reality                                                                                                                              |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `CalculationFormContext` has `form: UseFormReturn<...>`                    | No `form` in context; form is from `FormProvider` / `useFormContext()`                                                                    |
+| `budgetValidation: BudgetValidationResult \| null`                         | `ReturnType<typeof useBudgetValidation> \| null` (same shape, type name differs)                                                          |
+| `<CalculationFormProvider mode="create">`                                  | Create: `<CalculationFormProvider>`. Edit: `<CalculationFormProvider editingCalculationId={id}>`. No `mode` prop.                         |
+| calculation-form-provider: 226 lines                                       | 276 lines                                                                                                                                 |
+| app-state-provider: 186 lines                                              | 293 lines                                                                                                                                 |
+| create/page.tsx: 551 lines                                                 | 154 lines                                                                                                                                 |
+| edit/[id]/page.tsx: 454 lines                                              | 185 lines                                                                                                                                 |
+| Component list includes `benefit-input.tsx`                                | No such file; form uses `form-fields/` (master-learner-field, master-care-field, integracje-field, other-field); Budget field removed     |
+| utils: `financialMath.ts`                                                  | No file; financial helpers in `utils/money.ts` (e.g. `addMoney`, `multiplyMoney`)                                                         |
 | calculation-schema: single `calculationFormSchema` with inline refinements | Schema uses `createCalculationFormSchema(employmentDate)` and `baseCalculationFormSchema`; provider builds schema with employment context |
-| calculation-schema: 68 lines | 212 lines |
-| useBudgetValidation(selectedMonth, employmentDate, calculations, values) | 5th param: `editingCalculationId?: string` |
-| form.tsx: 157 lines | 193 lines |
+| calculation-schema: 68 lines                                               | 212 lines                                                                                                                                 |
+| useBudgetValidation(selectedMonth, employmentDate, calculations, values)   | 5th param: `editingCalculationId?: string`                                                                                                |
+| form.tsx: 157 lines                                                        | 193 lines                                                                                                                                 |
 
 ### 2. USER_STORIES.md (D-013: Employment Date Reactive Updates)
 

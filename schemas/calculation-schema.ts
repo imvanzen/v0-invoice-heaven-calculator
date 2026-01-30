@@ -70,13 +70,13 @@ const baseCalculationFormSchema = z.object({
       `Master Care cannot exceed ${defaultMaxValues.masterCare} PLN per entry`,
     ),
 
-  // Integrations (per-entry max uses benefit rules)
+  // Team building (per-entry max uses benefit rules)
   integracje: z
-    .number({ error: "Integrations must be a number" })
-    .min(0, "Integrations cannot be negative")
+    .number({ error: "Team building must be a number" })
+    .min(0, "Team building cannot be negative")
     .max(
       defaultMaxValues.integrations,
-      `Integrations cannot exceed ${defaultMaxValues.integrations} PLN per entry`,
+      `Team building cannot exceed ${defaultMaxValues.integrations} PLN per entry`,
     ),
 
   // Other expenses (no specific limit)

@@ -112,8 +112,7 @@ CreateCalculation ✅ (shared form + provider)
                         ├── ToolsSection
                         │   └── useTools()
                         │
-                        ├── FormField (Budget) ✅
-                        ├── FormField (Integrations) ✅
+                        ├── FormField (Team building) ✅
                         ├── FormField (Other) ✅
                         │
                         └── Actions
@@ -154,8 +153,7 @@ EditCalculation ✅ (shared form + provider)
                         ├── FormField (Master Learner) ✅
                         ├── FormField (Master Care) ✅
                         ├── ToolsSection
-                        ├── FormField (Budget) ✅
-                        ├── FormField (Integrations) ✅
+                        ├── FormField (Team building) ✅
                         ├── FormField (Other) ✅
                         │
                         └── Actions
@@ -467,7 +465,6 @@ components/
 │   ├── master-learner-field.tsx
 │   ├── master-care-field.tsx
 │   ├── integracje-field.tsx
-│   ├── budget-field.tsx
 │   ├── other-field.tsx
 │   └── index.ts
 ├── page-header.tsx ✅

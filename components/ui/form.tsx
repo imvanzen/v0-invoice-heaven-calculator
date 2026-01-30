@@ -112,7 +112,7 @@ const FormControl = React.forwardRef<
 
   // FormControl wraps a single child element (typically an Input, Select, etc.)
   // and adds ARIA attributes and ref forwarding for RHF compatibility
-  // This follows the shadcn/ui pattern: FormControl wraps the input and adds accessibility props
+  // This follows the base-ui pattern: FormControl wraps the input and adds accessibility props
   const childElement =
     render || (React.Children.only(children) as React.ReactElement);
 

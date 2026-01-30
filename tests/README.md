@@ -9,7 +9,7 @@ This directory contains functional tests for the Invoice Heaven Calculator appli
 - Form display and validation
 - Calculation logic for total sum
 - String format generation (`ML;{value};MC;{value};REIM.RAZEM;{value};...`)
-- REIM.RAZEM calculation (sum of tools, budzet, integracje, inne)
+- REIM.RAZEM calculation (sum of tools, integracje, inne)
 - Decimal precision handling
 - Input validation (max values, negative values)
 - Clear functionality
@@ -54,7 +54,7 @@ Tests follow Playwright best practices:
 
 ## Business Logic Verified
 
-1. **Total Sum Calculation**: Sum of all fields (ML + MC + tools + budzet + integracje + inne)
-2. **REIM.RAZEM Calculation**: Sum of tools + budzet + integracje + inne
-3. **String Format**: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na dojazdy i noclegi;{budzet};integracje;{integracje};inne;{inne}`
+1. **Total Sum Calculation**: Sum of all fields (ML + MC + tools + integracje + inne)
+2. **REIM.RAZEM Calculation**: Sum of tools + integracje + inne
+3. **String Format**: `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};integracje;{integracje};inne;{inne}`
 4. **Decimal Precision**: Uses financial math to avoid floating point errors

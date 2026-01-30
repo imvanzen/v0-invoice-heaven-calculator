@@ -32,7 +32,7 @@ export function UsageSummary({ calculations }: UsageSummaryProps) {
         <UsageCard title="Master Learner" usage={summary.masterLearner} />
         <UsageCard title="Master Care" usage={summary.masterCare} />
         <UsageCard
-          title="Integrations (team-building)"
+          title="Team building"
           usage={summary.integrations}
           additionalNote="Travel and accommodation expenses"
         />

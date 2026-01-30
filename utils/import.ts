@@ -94,14 +94,13 @@ export function validateImportFile(
 
     // Validate each calculation has required fields
     for (const calc of rawCalculations) {
-      const c = calc as Record<string, unknown>;
       if (
-        !c.id ||
-        !c.month ||
-        c.masterLearner === undefined ||
-        c.masterCare === undefined ||
-        !c.tools ||
-        !Array.isArray(c.tools)
+        !calc.id ||
+        !calc.month ||
+        calc.masterLearner === undefined ||
+        calc.masterCare === undefined ||
+        !calc.tools ||
+        !Array.isArray(calc.tools)
       ) {
         return {
           isValid: false,

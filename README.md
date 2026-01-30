@@ -12,12 +12,12 @@ Next.js app for calculating and formatting employee reimbursement data for Invoi
 
 ## Purpose
 
-- Calculate monthly reimbursements across benefit categories (Master Learner, Master Care, Tools, Budget, Integrations, Other)
+- Calculate monthly reimbursements across benefit categories (Master Learner, Master Care, Tools, Team building, Other)
 - Multi-currency tools with PLN conversion; track usage vs. annual/bi-monthly/quarterly limits
 - Generate InvoiceHeaven format strings; maintain calculation history (Saved, Submitted, Declined, Approved)
 - Import/export for backup and migration
 
-**Rules:** Period-based inputs (Master Care/Learner bi-monthly, Integrations quarterly); annual limits (e.g. Master Learner 3,000 / 1,500 PLN by employment date); one calculation per month; real-time validation.
+**Rules:** Period-based inputs (Master Care/Learner bi-monthly, Team building quarterly); one calculation per month; real-time validation.
 
 ---
 
@@ -42,14 +42,14 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Tech Stack
 
-Next.js 16 (App Router, RSC) · React 19 + React Compiler · Tailwind 4 (HSL variables) · shadcn/ui (New York) · Radix · Lucide · Context API + `useOptimistic`/`useTransition` · IndexedDB (idb) · React Hook Form + Zod 4 · next-themes · TypeScript 5.7 strict
+Next.js 16 (App Router, RSC) · React 19 + React Compiler · Tailwind 4 (HSL variables) · base-ui · Radix · Lucide · Context API + `useOptimistic`/`useTransition` · IndexedDB (idb) · React Hook Form + Zod 4 · next-themes · TypeScript 5.7 strict
 
 ### Project Structure
 
 ```
 ├── app/                 # App Router: page.tsx, create/, edit/[id]/, layout
 ├── providers/           # AppStateProvider, CalculationFormProvider
-├── components/         # UI (shadcn), form-fields, calculation-list, dialogs, etc.
+├── components/         # UI (base-ui), form-fields, calculation-list, dialogs, etc.
 ├── schemas/            # calculation-schema.ts, tool-schema.ts (Zod)
 ├── hooks/              # useTools, useBudgetValidation, useInvoiceString
 ├── lib/                # db.ts (IndexedDB), utils.ts
@@ -73,12 +73,12 @@ Next.js 16 (App Router, RSC) · React 19 + React Compiler · Tailwind 4 (HSL var
 - **Components:** `"use client"` only when needed; prefer Server Components; use `cn()` from `lib/utils.ts`.
 - **Styling:** CSS variables and Tailwind 4; test light/dark.
 - **Validation:** Real-time, block submit on errors, clear messages.
-- **A11y:** Radix/shadcn, labels, ARIA, keyboard nav.
+- **A11y:** Radix/base-ui, labels, ARIA, keyboard nav.
 
 ### AI / Cursor
 
 - **PM agent:** Requirement intake → impact → backlog (INVEST, Given/When/Then) → docs sync. See `docs/USER_STORIES.md`, `docs/TECHNICAL_DESCRIPTION.md`, `docs/DESIGN_SPECIFICATIONS.md`, `docs/ADR-001-calculation-storage-strategy.md`.
-- **Designer agent:** shadcn New York, Tailwind 4, WCAG. Rules in `.cursor/rules/`.
+- **Designer agent:** base-ui, Tailwind 4, WCAG. Rules in `.cursor/rules/`.
 - **Practice:** Review AI output; test both themes, a11y, and financial edge cases.
 
 ---

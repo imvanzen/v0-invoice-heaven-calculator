@@ -65,7 +65,7 @@ A Next.js-based web application for calculating and formatting employee reimburs
   - Responsive breakpoints (sm, md, lg, xl)
   - `tailwindcss-animate` for animations
   - `tailwind-merge` + `clsx` for conditional classes
-- **shadcn/ui** (component library)
+- **base-ui** (component library)
   - Radix UI primitives (Dialog, Select, Tooltip, Label)
   - WCAG 2.1 AA compliant
   - Keyboard navigation support
@@ -109,7 +109,7 @@ interface AppState {
   createCalculation: (data: CalculationInput) => Promise<ActionResult>;
   updateCalculation: (
     id: string,
-    data: Partial<CalculationInput>
+    data: Partial<CalculationInput>,
   ) => Promise<ActionResult>;
   deleteCalculation: (id: string) => Promise<ActionResult>;
 }
@@ -215,9 +215,9 @@ export function useBudgetValidation(
   employmentDate: EmploymentDate | null,
   calculations: Calculation[],
   values: BudgetValidationInput,
-  editingCalculationId?: string  // Exclude this calculation from accumulated usage when editing
+  editingCalculationId?: string, // Exclude this calculation from accumulated usage when editing
 ): BudgetValidationResult {
-  // Validates ML/MC/Integrations against accumulated limits
+  // Validates ML/MC/Team building against accumulated limits
   // Returns validation results with error messages
 }
 ```
@@ -226,7 +226,7 @@ export function useBudgetValidation(
 
 - ✅ Master Learner annual limit validation
 - ✅ Master Care bi-monthly period limit validation
-- ✅ Integrations quarterly limit validation
+- ✅ Team building quarterly limit validation
 - ✅ Real-time accumulated usage tracking
 
 ---
@@ -251,7 +251,6 @@ components/
   │   ├── master-learner-field.tsx
   │   ├── master-care-field.tsx
   │   ├── integracje-field.tsx
-  │   ├── budget-field.tsx
   │   ├── other-field.tsx
   │   └── index.ts
   ├── page-header.tsx             # Reusable page header
@@ -261,7 +260,7 @@ components/
   ├── usage-summary.tsx           # Budget usage indicators (props: calculations, employmentDate)
   ├── employment-date-manager.tsx # Employment date picker
   └── ui/
-      ├── form.tsx                # shadcn form components
+      ├── form.tsx                # base-ui form components
       ├── theme-toggle.tsx        # Theme switcher
       ├── loading-state.tsx       # Loading indicator
       ├── empty-state.tsx         # Empty state placeholder
@@ -323,7 +322,7 @@ types/
 ```typescript
 const [optimisticCalculations, setOptimisticCalculations] = useOptimistic(
   calculations,
-  (state, optimisticValue: Calculation[]) => optimisticValue
+  (state, optimisticValue: Calculation[]) => optimisticValue,
 );
 
 // Update optimistically
@@ -507,26 +506,22 @@ UI reflects deletion (no navigation)
 ### Implemented Features
 
 1. **Keyboard Navigation**
-
    - All interactive elements accessible via keyboard
    - Logical tab order
    - Focus indicators visible
 
 2. **Screen Reader Support**
-
    - ARIA labels on form fields
    - ARIA-describedby for error messages
    - ARIA-invalid for validation states
    - Semantic HTML elements
 
 3. **Color Contrast**
-
    - All text meets AA contrast ratios
    - Error states use sufficient contrast
    - Dark mode maintains accessibility
 
 4. **Form Validation**
-
    - Error messages announced to screen readers
    - Validation states indicated with ARIA attributes
    - Helper text provides guidance
@@ -618,7 +613,7 @@ UI reflects deletion (no navigation)
 - [React 19 Release Notes](https://react.dev/blog/2024/04/25/react-19)
 - [React Hook Form Documentation](https://react-hook-form.com/)
 - [Zod Documentation](https://zod.dev/)
-- [shadcn/ui Components](https://ui.shadcn.com/)
+- [base-ui](https://base-ui.com/)
 - [WCAG 2.1 AA Guidelines](https://www.w3.org/WAI/WCAG21/quickref/?currentsidebar=%23col_customize&levels=a%2Caaa)
 
 ---

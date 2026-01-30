@@ -46,7 +46,7 @@ const INVOICE_TEMPLATE = {
  * Generates Invoice Heaven formatted string from calculation data
  *
  * Format: key1;value1;key2;value2;...
- * Example: ML;3000;MC;750;REIM.RAZEM;1500.00;narzędzia;500.00;budżet na dojazdy i noclegi;500;integracje;500;inne;0
+ * Example: ML;3000;MC;750;REIM.RAZEM;1500.00;narzędzia;500.00;integracje;500;inne;0
  *
  * @param params - Calculation values to format
  * @returns Formatted invoice string

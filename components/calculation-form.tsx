@@ -136,7 +136,7 @@ export function CalculationForm({
 
           {/* Tools */}
           <div className="space-y-2">
-            <FormLabel className="text-base font-medium">Narzędzia</FormLabel>
+            <FormLabel className="text-base font-medium">Tools</FormLabel>
             <ToolsSection
               tools={tools}
               setTools={setTools}
@@ -146,7 +146,7 @@ export function CalculationForm({
             />
           </div>
 
-          {/* Integrations (team-building) */}
+          {/* Team building */}
           <IntegrationField />
 
           {/* Other */}

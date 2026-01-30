@@ -2,7 +2,7 @@
 
 **Document Version:** 1.1  
 **Last Updated:** 2026-01-16  
-**Design System:** shadcn/ui "New York" variant, Tailwind CSS 4.1, Radix UI
+**Design System:** base-ui, Tailwind CSS 4.1, Radix UI
 
 ---
 
@@ -11,7 +11,7 @@
 1. **Clarity over Decoration:** Financial precision and legible numbers take priority
 2. **Progressive Disclosure:** Essential metrics visible immediately; complex details behind interactions
 3. **State Visibility:** Users always know calculation validity status
-4. **Consistency:** Strict adherence to "New York" shadcn/ui style
+4. **Consistency:** Strict adherence to base-ui style
 5. **Precision UI:** Generous whitespace with compact typography for metadata
 
 ---
@@ -165,7 +165,7 @@ className = "shadow-md transition-all hover:scale-105";
 
 #### Design Details
 
-- **Format:** `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};budżet na dojazdy i noclegi;{budzet};integracje;{integracje};inne;{inne}`
+- **Format:** `ML;{ml};MC;{mc};REIM.RAZEM;{razem};narzędzia;{tools};integracje;{integracje};inne;{inne}`
 - **Font:** Monospace (`font-mono`) for consistent character width
 - **Wrapping:** `break-all` ensures long strings wrap on mobile
 - **Copy Feedback:** Button changes to checkmark + "Copied" for 2 seconds
@@ -357,7 +357,7 @@ className="text-sm text-destructive"
 
 ---
 
-### US-007: Input Integrations Amount
+### US-007: Input Team building Amount
 
 #### Visual Strategy Summary
 
@@ -405,7 +405,7 @@ className="text-sm text-destructive"
 - **Helper Text:** "Individual travel expenses only (accommodation and transport). Group activities are handled by organizers."
 - **Quarterly Validation:** Only enabled in months within current quarter
 - **Max Value:** Fixed 1,500 PLN quarterly (not dependent on employment date, tracked via US-027)
-- **Error Message:** "Integrations can only be entered in calculations for {currentQuarter} (e.g., Q1: Jan-Mar). This calculation is for {month}, which is outside the current settlement period."
+- **Error Message:** "Team building can only be entered in calculations for {currentQuarter} (e.g., Q1: Jan-Mar). This calculation is for {month}, which is outside the current settlement period."
 
 #### Design Review Checklist
 
@@ -1276,10 +1276,10 @@ className = "flex gap-2 justify-end";
 - **Usage Summary:**
   - Master Learner: "Used: {amount} / Limit: {limit} PLN"
   - Master Care: "Used: {amount} / Limit: 750 PLN"
-  - Integrations: "Used: {amount} / Limit: 1,500 PLN"
+  - Team building: "Used: {amount} / Limit: 1,500 PLN"
 - **Table Columns:**
   - Month (e.g., "January 2026")
-  - ML, MC, Tools, Budget, Integrations, Other (values in PLN)
+  - ML, MC, Tools, Team building, Other (values in PLN)
   - Total (2 decimal places)
   - Status (badge with color coding)
   - Actions (Copy, Edit, Delete buttons)
@@ -1461,7 +1461,7 @@ className = "text-destructive";
   - Period: Current bi-monthly period (e.g., "Jan-Feb 2026")
   - Limit: 750 PLN
   - Display: "Used: {amount} / Limit: 750 PLN"
-- **Integrations:**
+- **Team building:**
   - Period: Current quarter (e.g., "Q1: Jan-Mar 2026")
   - Limit: Fixed 1,500 PLN (not dependent on employment date)
   - Display: "Used: {amount} / Limit: 1,500 PLN travel expenses only (accommodation and transport)"
@@ -1523,7 +1523,7 @@ className="text-xs text-muted-foreground"
 - **Error Messages:**
   - ML: "Master Learner: You have used {accumulated} PLN. This entry ({new}) would exceed the annual limit of 3,000 PLN. Remaining: {remaining} PLN"
   - MC: "Master Care: You have used {accumulated} PLN in this period. This entry ({new}) would exceed the period limit of 750 PLN. Remaining: {remaining} PLN"
-  - Integrations: "Integrations: You have used {accumulated} PLN this quarter for travel expenses. This entry ({new}) would exceed the quarterly limit of 1,500 PLN (fixed limit). Remaining: {remaining} PLN. Note: Only individual travel expenses (accommodation and transport) are tracked here."
+  - Team building: "Team building: You have used {accumulated} PLN this quarter for travel expenses. This entry ({new}) would exceed the quarterly limit of 1,500 PLN (fixed limit). Remaining: {remaining} PLN. Note: Only individual travel expenses (accommodation and transport) are tracked here."
 - **Validation:** Real-time, checks accumulated usage + new value
 
 #### Design Review Checklist
@@ -1579,7 +1579,7 @@ className = "text-xs text-muted-foreground italic";
 #### Design Details
 
 - **Display Format:** "Remaining: X / {limit} PLN"
-- **Period Info:** "Jan-Feb 2026" for MC, "Q1: Jan-Mar 2026" for Integrations
+- **Period Info:** "Jan-Feb 2026" for MC, "Q1: Jan-Mar 2026" for Team building
 - **Color Coding:**
   - Green/Normal: > 10% remaining
   - Orange/Warning: < 10% remaining
@@ -1883,7 +1883,7 @@ className="text-xs text-muted-foreground italic"
 **Interactive States:**
 
 - Default: Enabled (if period valid)
-- Disabled: When period invalid (MC/Integrations)
+- Disabled: When period invalid (MC/Team building)
 - Error: Red border and error message
 - Focus: No focus when disabled
 
@@ -1892,9 +1892,9 @@ className="text-xs text-muted-foreground italic"
 - **Master Care:**
   - Disabled in non-settlement months
   - Error: "Master Care can only be entered in calculations for {settlementMonth} (settlement month for {currentPeriod} period). This calculation is for {month}, which is not the settlement month."
-- **Integrations:**
+- **Team building:**
   - Disabled outside current quarter
-  - Error: "Integrations can only be entered in calculations for {currentQuarter} (e.g., Q1: Jan-Mar). This calculation is for {month}, which is outside the current settlement period."
+  - Error: "Team building can only be entered in calculations for {currentQuarter} (e.g., Q1: Jan-Mar). This calculation is for {month}, which is outside the current settlement period."
 - **Helper Text:** Explains settlement periods
 
 #### Design Review Checklist
@@ -2172,7 +2172,7 @@ className = "text-sm text-orange-600 dark:text-orange-400";
 - **Warning:** "Employment date not set. Default limits applied. Set your employment date for accurate limit calculations."
 - **Impact:**
   - Master Learner: 3,000 PLN (Jan-Jun) or 1,500 PLN (Jul-Dec)
-  - Integrations: Fixed 1,500 PLN quarterly (not dependent on employment date)
+  - Team building: Fixed 1,500 PLN quarterly (not dependent on employment date)
 
 #### Design Review Checklist
 
@@ -2212,12 +2212,12 @@ className = "text-sm text-orange-600 dark:text-orange-400";
 
 ### Components
 
-- **Buttons:** shadcn/ui Button component
+- **Buttons:** base-ui Button component
   - Default: Primary action
   - Outline: Secondary action
   - Ghost: Tertiary action
   - Destructive: Delete/destructive actions
-- **Inputs:** shadcn/ui Input component
+- **Inputs:** base-ui Input component
   - Standard styling with error states
   - Read-only: Muted background
 - **Dialogs:** Radix UI Dialog
@@ -2245,10 +2245,10 @@ className = "text-sm text-orange-600 dark:text-orange-400";
 
 ### Version 1.1 (2026-01-16)
 
-- Updated Integrations benefit rules: Changed from employment date-dependent limit to fixed 1,500 PLN quarterly limit (not dependent on employment date)
-- Updated US-007 design specifications: Clarified that Integrations limit is fixed at 1,500 PLN per quarter
-- Updated US-026, US-027 design specifications: Removed employment date dependency for Integrations limit calculations
-- Updated US-038 design specifications: Removed Integrations from employment date dependencies
+- Updated Team building benefit rules: Changed from employment date-dependent limit to fixed 1,500 PLN quarterly limit (not dependent on employment date)
+- Updated US-007 design specifications: Clarified that Team building limit is fixed at 1,500 PLN per quarter
+- Updated US-026, US-027 design specifications: Removed employment date dependency for Team building limit calculations
+- Updated US-038 design specifications: Removed Team building from employment date dependencies
 
 ---
 

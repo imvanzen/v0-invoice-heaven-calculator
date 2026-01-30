@@ -125,7 +125,7 @@ export function CalculationList({
               <TableHead className="text-right">ML</TableHead>
               <TableHead className="text-right">MC</TableHead>
               <TableHead className="text-right">Tools</TableHead>
-              <TableHead className="text-right">Integrations</TableHead>
+              <TableHead className="text-right">Team building</TableHead>
               <TableHead className="text-right">Other</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead className="text-center">Status</TableHead>

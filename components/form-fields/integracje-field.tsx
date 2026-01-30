@@ -33,7 +33,7 @@ export function IntegrationField() {
 
         return (
           <FormItem>
-            <FormLabel>Integrations</FormLabel>
+            <FormLabel>Team building</FormLabel>
             <FormControl>
               <Input
                 type="number"
